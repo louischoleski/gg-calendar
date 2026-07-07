@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { isToday } from '@utils/dates';
 import { MODAL_SECTIONS } from '@constants/modals';
 import { selectDate, selectView } from '@store/selectors/app';
+import { updateEntry } from '@store/actions/entries';
 import { setDate, setView, setModal } from '@store/actions/app';
 import { toDateKey, getMonthCells, getEntriesByDateKey } from '@utils/entries';
 import { selectActiveEntries, selectCategoryColors } from '@store/selectors/entries';
@@ -85,14 +86,101 @@ const MonthScheduling = ({
 		dispatch(setView(BASE_CALENDAR_VIEWS.DAY));
 	};
 
-	const onBoxClick = (e, id) => {
+	const gridRef = React.useRef(null);
+
+	// Active box drag between cells:
+	// { entry, toIdx, cellW, cellH } | null
+	const [ drag, setDrag ] = React.useState(null);
+
+	// Drag a month box across cells (snaps cell to cell, like the
+	// original MV drag engine); under 4px of movement it's a click.
+	const onBoxMouseDown = (e, entry) => {
+		if (e.button !== 0 || !gridRef.current) return;
+
+		e.preventDefault();
 		e.stopPropagation();
 
-		dispatch(setModal(MODAL_SECTIONS.ENTRY_OPTIONS, {
-			id,
-			x: e.clientX,
-			y: e.clientY,
-		}));
+		const rect = gridRef.current.getBoundingClientRect();
+		const rows = cells.length / TOTAL_DAY_WEEK;
+		const cellW = rect.width / TOTAL_DAY_WEEK;
+		const cellH = rect.height / rows;
+
+		// The grabbed box's exact offset inside its cell — the clone
+		// reuses it so engaging the drag never shifts the box.
+		const boxRect = e.currentTarget.getBoundingClientRect();
+		const startCol = Math.floor((boxRect.left + 1 - rect.left) / cellW);
+		const startRow = Math.floor((boxRect.top + 1 - rect.top) / cellH);
+		const offsetX = boxRect.left - (rect.left + startCol * cellW);
+		const offsetY = boxRect.top - (rect.top + startRow * cellH);
+		const boxW = boxRect.width;
+
+		const session = { moved: false, toIdx: null };
+
+		const handleMove = (ev) => {
+			if (!session.moved && (
+				Math.abs(ev.clientX - e.clientX) > 3 ||
+				Math.abs(ev.clientY - e.clientY) > 3
+			)) {
+				session.moved = true;
+				document.body.style.cursor = 'move';
+			}
+
+			if (!session.moved) return;
+
+			const cx = Math.min(Math.max(Math.floor((ev.clientX - rect.left) / cellW), 0), TOTAL_DAY_WEEK - 1);
+			const cy = Math.min(Math.max(Math.floor((ev.clientY - rect.top) / cellH), 0), rows - 1);
+
+			session.toIdx = cy * TOTAL_DAY_WEEK + cx;
+
+			setDrag({ entry, toIdx: session.toIdx, cellW, cellH, offsetX, offsetY, boxW });
+		};
+
+		const handleUp = (ev) => {
+			document.removeEventListener('mousemove', handleMove);
+			document.removeEventListener('mouseup', handleUp);
+
+			document.body.style.cursor = '';
+			setDrag(null);
+
+			if (!session.moved) {
+				// Plain click: open the entry details popup.
+				dispatch(setModal(MODAL_SECTIONS.ENTRY_OPTIONS, {
+					id: entry.id,
+					x: ev.clientX,
+					y: ev.clientY,
+				}));
+				return;
+			}
+
+			// Swallow the synthetic click that follows a drag so it
+			// doesn't reach the cell's click-to-create handler.
+			document.addEventListener('click', (ce) => {
+				ce.stopPropagation();
+			}, { capture: true, once: true });
+
+			const target = cells[session.toIdx];
+
+			if (!target) return;
+
+			// Move to the dropped cell's day, keeping time and duration.
+			const start = new Date(entry.start);
+			const duration = new Date(entry.end) - start;
+
+			const newStart = new Date(
+				target.getFullYear(), target.getMonth(), target.getDate(),
+				start.getHours(), start.getMinutes(), 0, 0
+			);
+
+			if (newStart.getTime() === start.getTime()) return;
+
+			dispatch(updateEntry(entry.id, {
+				start: newStart.toISOString(),
+				end: new Date(newStart.getTime() + duration).toISOString(),
+			}));
+		};
+
+		document.addEventListener('mousemove', handleMove);
+		document.addEventListener('mouseup', handleUp);
 	};
 
 	// Click an empty cell to create an entry that morning.
@@ -131,10 +219,32 @@ const MonthScheduling = ({
 					</div>
 				))}
 			</div>
-			<div className={[
-				'monthview--calendar',
-				cells.length === 35 ? 'five-weeks' : null,
-			].filter(Boolean).join(' ')}>
+			<div
+				ref={gridRef}
+				style={{ position: 'relative' }}
+				className={[
+					'monthview--calendar',
+					cells.length === 35 ? 'five-weeks' : null,
+				].filter(Boolean).join(' ')}
+			>
+				{drag ? (
+					// Snapped clone riding over the hovered cell.
+					<div
+						className="monthview--box box-mv-dragactive"
+						style={{
+							position: 'absolute',
+							height: `${BOX_HEIGHT}px`,
+							width: `${drag.boxW}px`,
+							left: `${(drag.toIdx % TOTAL_DAY_WEEK) * drag.cellW + drag.offsetX}px`,
+							top: `${Math.floor(drag.toIdx / TOTAL_DAY_WEEK) * drag.cellH + drag.offsetY}px`,
+							backgroundColor: categoryColors[drag.entry.category] || 'rgb(44, 82, 186)',
+						}}
+					>
+						<div className="monthview--title">
+							{drag.entry.title}
+						</div>
+					</div>
+				) : null}
 				{cells.map((day, idx) => {
 					const dayEntries = entriesByKey[toDateKey(day)] || [];
 
@@ -153,6 +263,7 @@ const MonthScheduling = ({
 							className={[
 								'monthview--day',
 								isToday(day) ? 'monthview--today' : null,
+								drag?.toIdx === idx ? 'current-drop-zone' : null,
 							].filter(Boolean).join(' ')}
 						>
 							<button
@@ -178,12 +289,13 @@ const MonthScheduling = ({
 										key={entry.id}
 										className="monthview--box"
 										data-monthview-id={entry.id}
-										onClick={(e) => onBoxClick(e, entry.id)}
+										onMouseDown={(e) => onBoxMouseDown(e, entry)}
 										style={{
 											width: '100%',
 											cursor: 'pointer',
 											top: `${boxIdx * BOX_TOP}px`,
 											height: `${BOX_HEIGHT}px`,
+											opacity: drag?.entry.id === entry.id ? 0.5 : 1,
 											backgroundColor: categoryColors[entry.category] || 'rgb(44, 82, 186)',
 										}}
 									>
