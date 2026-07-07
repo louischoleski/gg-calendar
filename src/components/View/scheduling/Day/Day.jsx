@@ -81,7 +81,7 @@ const DayScheduling = ({
 	return (
 		<div className="dayview">
 			<div className="calendar__dayview">
-				<DayHeader allDayBoxes={boxes.allDay} />
+				<DayHeader dayBoxes={boxes.day} allDayBoxes={boxes.allDay} />
 				<div className="dayview__grid">
 					<div className="dayview__grid--wrapper">
 						<DaySidebar />

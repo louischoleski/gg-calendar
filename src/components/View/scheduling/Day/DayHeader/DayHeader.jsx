@@ -10,10 +10,11 @@ import { CALENDAR_LABELS, WEEK_START } from '@constants/calendar';
 
 import {
 	setDayTitleStyle,
+	getDayHeaderInfo,
 	setDayTitleClassName,
 } from './DayHeader.controller';
 
-const DayHeader = ({ allDayBoxes = [] }) => {
+const DayHeader = ({ dayBoxes = [], allDayBoxes = [] }) => {
 	const dispatch = useDispatch();
 
 	const categoryColors = useSelector(selectCategoryColors);
@@ -57,6 +58,11 @@ const DayHeader = ({ allDayBoxes = [] }) => {
 	// Set week day.
 	const weekDay = (now.getDay() + 7 - WEEK_START) % 7;
 
+	// e.g. "3 entries starting & ending today ( 6 – 7am )".
+	const headerInfo = React.useMemo(() => (
+		getDayHeaderInfo(dayBoxes, allDayBoxes, now)
+	), [ dayBoxes, allDayBoxes, now ]);
+
 	return (
 		<>
 			<div className={[
@@ -72,7 +78,9 @@ const DayHeader = ({ allDayBoxes = [] }) => {
 					</div>
 				</div>
 				<div className="dv-info-day-wrapper">
-					<div className="dayview--header-day__info" />
+					<div className="dayview--header-day__info">
+						{headerInfo}
+					</div>
 				</div>
 			</div>
 			<div className="dv-ontop-row2">
