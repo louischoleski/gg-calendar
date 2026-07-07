@@ -1,9 +1,11 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
+import { getWeekBoxes } from '@utils/entries';
 import { setDate } from '@store/actions/app';
+import { selectActiveEntries } from '@store/selectors/entries';
 import { selectDate, selectView } from '@store/selectors/app';
-import { CALENDAR_LABELS, BASE_CALENDAR_VIEWS, WEEK_START, WEEK_END, } from '@constants/calendar';
+import { CALENDAR_LABELS, BASE_CALENDAR_VIEWS, WEEK_START, TOTAL_DAY_WEEK } from '@constants/calendar';
 
 import WeekGrid from './WeekGrid';
 import WeekHeader from './WeekHeader';
@@ -23,6 +25,8 @@ const WeekScheduling = ({
 	} = useSelector(selectDate);
 
 	const calendarView = useSelector(selectView);
+
+	const activeEntries = useSelector(selectActiveEntries);
 
 	const setPrevWeek = (d, m, y) => {
 		const prevWeek = new Date(
@@ -60,20 +64,18 @@ const WeekScheduling = ({
 	const weekArray = React.useMemo(() => {
 		const week = new Date(selectedYear, selectedMonth, selectedDay);
 
-		week.setDate(week.getDate() - week.getDay());
+		// Back up to the first day of the week (respects WEEK_START).
+		week.setDate(week.getDate() - ((week.getDay() - WEEK_START + 7) % 7));
 
-		let weekArray = [];
-
-		for (let i = WEEK_START; i < WEEK_END; i++) {
-			if (i < 6) {
-				weekArray.push(new Date(week.getFullYear(), week.getMonth(), week.getDate() + i));
-			} else {
-				weekArray.push(new Date(week.getFullYear(), week.getMonth(), week.getDate() + i, 23, 59, 59, 999));
-			}
-		}
-
-		return weekArray;
+		return new Array(TOTAL_DAY_WEEK).fill(null).map((_, i) => (
+			new Date(week.getFullYear(), week.getMonth(), week.getDate() + i)
+		));
 	}, [selectedYear, selectedMonth, selectedDay]);
+
+	// Split active entries into single-day / multi-day boxes for this week.
+	const boxes = React.useMemo(() => (
+		getWeekBoxes(activeEntries, weekArray)
+	), [ activeEntries, weekArray ]);
 
 	// Set header view title.
 	React.useEffect(() => {
@@ -89,7 +91,7 @@ const WeekScheduling = ({
 		if (m1 === m2) {
 			res = `${CALENDAR_LABELS.MONTH.SHORT[m1]} ${d1} – ${d2}, ${weekArray[0].getFullYear()}`;
 		} else {
-			res = `${CALENDAR_LABELS.MONTH.SHORT[m1]} ${d1} – ${d2} ${CALENDAR_LABELS.MONTH.SHORT[m2]}, ${weekArray[1].getFullYear()}`;
+			res = `${CALENDAR_LABELS.MONTH.SHORT[m1]} ${d1} – ${CALENDAR_LABELS.MONTH.SHORT[m2]} ${d2}, ${weekArray[6].getFullYear()}`;
 		}
 
 		setHeaderTitle(res);
@@ -99,10 +101,11 @@ const WeekScheduling = ({
 		<div className="weekview">
 			<WeekHeader
 				weekArray={weekArray}
+				allDayBoxes={boxes.allDay}
 			/>
 			<div className="weekview__grid">
 				<WeekSidebar />
-				<WeekGrid weekArray={weekArray} />
+				<WeekGrid weekArray={weekArray} boxes={boxes.day} />
 				<div />
 				<div className="weekview--footer" />
 			</div>

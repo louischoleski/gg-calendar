@@ -35,9 +35,9 @@ export const toggleAnimation = (animation) => ({
 	animation
 });
 
-export const setModal = (modal) => ({
+export const setModal = (modal, data = null) => ({
 	type: actionTypes.APP_MODAL_UPDATED,
-	modal
+	modal, data
 });
 
 export const toggleCollapsed = {

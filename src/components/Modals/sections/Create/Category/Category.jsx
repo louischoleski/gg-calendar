@@ -59,11 +59,10 @@ const CreateCategory = ({
 	const handleSubmit = () => {
 		const errs = validate(data);
 
-		setHasError(
-			Boolean(
-				Object.keys(errs || {}).length
-			)
-		);
+		if (Object.keys(errs || {}).length) {
+			setHasError(true);
+			return;
+		}
 
 		onSubmit(data);
 	}

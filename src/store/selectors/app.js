@@ -6,7 +6,9 @@ export const selectApp = createSelector([ appSelect ], (app) => app);
 
 export const selectView = createSelector([ appSelect ], (app) => app.view); 
 
-export const selectModal = createSelector([ appSelect ], (app) => app.modal); 
+export const selectModal = createSelector([ appSelect ], (app) => app.modal);
+
+export const selectModalData = createSelector([ appSelect ], (app) => app.modalData);
 
 export const selectTheme = createSelector([ appSelect ], (app) => app.theme); 
 

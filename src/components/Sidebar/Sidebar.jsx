@@ -6,6 +6,7 @@ import { MODAL_SECTIONS } from '@constants/modals';
 import { selectCollapsed } from '@store/selectors/app';
 
 import Category from './Category';
+import SidebarDatepicker from './SidebarDatepicker';
 import { setSidebarClassName } from './Sidebar.controller';
 
 const Sidebar = () => {
@@ -64,148 +65,7 @@ const Sidebar = () => {
 			{/* sidebar content (datepicker/categories) */}
 			<div className="sidebar-content__wrapper">
 				{/* datepicker */}
-				<div className="datepicker-sidebar">
-					<div className="sb-datepicker__content">
-						<div className="sbdatepicker__header">
-							<button
-								className="sbdatepicker-title"
-								aria-label="button"
-								role="button"
-							>
-								October 2022
-							</button>
-							<div className="sbdatepicker-nav">
-								<button
-									className="sbdatepicker-nav--prev"
-									aria-label="button"
-									role="button"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										height="24px"
-										viewBox="0 0 24 24"
-										width="24px"
-										fill="var(--white3)"
-										style={{ userSelect: "none", pointerEvents: "none" }}
-									>
-										<path d="M0 0h24v24H0z" fill="none" />
-										<path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-									</svg>
-								</button>
-								<button
-									className="sbdatepicker-nav--next"
-									aria-label="button"
-									role="button"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										height="24px"
-										viewBox="0 0 24 24"
-										width="24px"
-										fill="var(--white3)"
-										style={{ userSelect: "none", pointerEvents: "none" }}
-									>
-										<path d="M0 0h24v24H0z" fill="none" />
-										<path d="M8.59 16.59L10 18l6-6-6-6L8.59 7.41 13.17 12z" />
-									</svg>
-								</button>
-							</div>
-						</div>
-						<div className="sbdatepicker__body">
-							{/* create a 7x7 table */}
-							<div className="sbdatepicker__body--header">
-								<div className="sbdatepicker__body--header-cell">M</div>
-								<div className="sbdatepicker__body--header-cell">T</div>
-								<div className="sbdatepicker__body--header-cell">W</div>
-								<div className="sbdatepicker__body--header-cell">T</div>
-								<div className="sbdatepicker__body--header-cell">F</div>
-								<div className="sbdatepicker__body--header-cell">S</div>
-								<div className="sbdatepicker__body--header-cell">S</div>
-							</div>
-							<div className="sbdatepicker__body--dates" />
-						</div>
-						<aside className="sb-datepicker-change-date hide-sbdpcd">
-							<aside className="sb-close-change-date">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									height="18px"
-									viewBox="0 0 24 24"
-									width="18px"
-									fill="var(--white3)"
-								>
-									<path d="M0 0h24v24H0z" fill="none" />
-									<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-								</svg>
-							</aside>
-							<div className="sb-yearpicker">
-								<div className="sb-yearpicker-prev">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										height="18px"
-										viewBox="0 0 24 24"
-										width="18px"
-										fill="var(--white4)"
-									>
-										<path d="M0 0h24v24H0z" fill="none" />
-										<path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-									</svg>
-								</div>
-								<div className="sb-yearpicker-title">2023</div>
-								<div className="sb-yearpicker-next">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										height="18px"
-										viewBox="0 0 24 24"
-										width="18px"
-										fill="var(--white4)"
-									>
-										<path d="M0 0h24v24H0z" fill="none" />
-										<path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-									</svg>
-								</div>
-							</div>
-							<div className="sb-monthpicker">
-								<div className="sb-monthpicker__month" data-sbdp-month={0}>
-									January
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={1}>
-									February
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={2}>
-									March
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={3}>
-									April
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={4}>
-									May
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={5}>
-									June
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={6}>
-									July
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={7}>
-									August
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={8}>
-									September
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={9}>
-									October
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={10}>
-									November
-								</div>
-								<div className="sb-monthpicker__month" data-sbdp-month={11}>
-									December
-								</div>
-							</div>
-						</aside>
-					</div>
-				</div>
-
+				<SidebarDatepicker />
 				{/* category modal */}
 				<Category />
 

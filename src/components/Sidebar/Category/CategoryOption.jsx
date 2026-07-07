@@ -15,17 +15,22 @@ const CategoryOption = ({
 	onClick = () => null, 
 	onDeleteClick = () => null,
 }) => {
-	const handleClick = (e) => {
-		// onClick(id);
+	const handleClick = () => {
+		onClick(id);
 	}
 
 	const handleDeleteClick = (e) => {
-		// onDeleteClick(id);
+		e.stopPropagation();
+		onDeleteClick(id);
 	}
 
 	return (
 		<div className="sbch-form--item">
-			<div className="sbch-form--item__col" onClick={handleClick}>
+			<div
+				onClick={handleClick}
+				style={{ cursor: 'pointer' }}
+				className="sbch-form--item__col"
+			>
 				<div className="sbch-form--item__checkbox--wrapper">
 					<button
 						data-sbch-category={name}

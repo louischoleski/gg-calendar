@@ -1,45 +1,48 @@
-import _ from 'lodash';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { selectDate } from '@store/selectors/app';
+import { setModal } from '@store/actions/app';
+import { MODAL_SECTIONS } from '@constants/modals';
+import { selectCategoryColors } from '@store/selectors/entries';
+import { getColumnLayout, quarterToDate, QUARTER_HEIGHT, QUARTERS_PER_DAY } from '@utils/entries';
 
 import DayCell from './DayCell';
-import useDayGrid from './useDayGrid';
-import { Day } from './DayGrid.controller';
 
-const DayGrid = () => {
-	const { getDayEntries } = useDayGrid();
+const DayGrid = ({ date = null, boxes = [] }) => {
+	const dispatch = useDispatch();
 
-	const {
-		day: selectedDay,
-		month: selectedMonth,
-		year: selectedYear,
-	} = useSelector(selectDate);
+	const categoryColors = useSelector(selectCategoryColors);
 
-	const entries = React.useMemo(() => getDayEntries(
-		new Date(
-			selectedYear, selectedMonth, selectedDay
-		)
-	), [ selectedYear, selectedMonth, selectedDay ]);
+	const layout = React.useMemo(() => (
+		getColumnLayout(boxes)
+	), [ boxes ]);
 
+	// Click an empty slot to create an entry at that time.
+	const onGridClick = (e) => {
+		if (e.target !== e.currentTarget || !date) return;
 
-	const [ topBoxes, allBoxes ] = React.useMemo(() => {
-		const boxes = new Day(entries.day, entries.allDay);
-		return [ boxes.getBoxesTop(), boxes.getBoxes() ];
-	}, [ entries ]);
+		const offsetY = e.clientY - e.currentTarget.getBoundingClientRect().top;
 
-	const dayCellRefs = React.useMemo(() => allBoxes.map(() => (
-		React.createRef()
-	)), [ allBoxes ]);
+		const quarter = Math.min(
+			Math.max(Math.floor(offsetY / QUARTER_HEIGHT), 0),
+			QUARTERS_PER_DAY - 4
+		);
+
+		dispatch(setModal(MODAL_SECTIONS.CREATE_EVENT, {
+			start: quarterToDate(date, quarter).toISOString(),
+			end: quarterToDate(date, quarter + 4).toISOString(),
+		}));
+	};
 
 	return (
-		<div className="dayview--main-grid">
-			{allBoxes.map(({ id, ...rest}, cellIdx) => (
-				<DayCell 
-					id={id} 
-					key={id} title={id}
-					ref={dayCellRefs[cellIdx]}
+		<div className="dayview--main-grid" onClick={onGridClick}>
+			{boxes.map(({ id, ...rest }) => (
+				<DayCell
+					id={id}
+					key={id}
+					date={date}
+					layout={layout[id]}
+					categoryColors={categoryColors}
 					{...rest}
 				/>
 			))}

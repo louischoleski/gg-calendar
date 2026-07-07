@@ -1,21 +1,140 @@
 import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
+import { setModal } from '@store/actions/app';
+import { MODAL_SECTIONS } from '@constants/modals';
+import { selectEntries } from '@store/selectors/entries';
+import { addEntry, updateEntry } from '@store/actions/entries';
+import { selectDate, selectModalData, selectCategories } from '@store/selectors/app';
+
+const pad = (n) => String(n).padStart(2, '0');
+
+const toDateInputValue = (d) => (
+	`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+);
+
+const toTimeInputValue = (d) => (
+	`${pad(d.getHours())}:${pad(d.getMinutes())}`
+);
+
+const fromInputValues = (dateValue, timeValue) => {
+	const [ y, m, d ] = dateValue.split('-').map(Number);
+	const [ hh, mm ] = timeValue.split(':').map(Number);
+	return new Date(y, m - 1, d, hh, mm, 0, 0);
+};
+
+const fieldStyle = {
+	width: '100%',
+	border: 'none',
+	outline: 'none',
+	fontSize: '0.875rem',
+	color: 'var(--white2)',
+	colorScheme: 'inherit',
+	backgroundColor: 'transparent',
+	borderBottom: '1px solid var(--mediumgrey1)',
+};
 
 const CreateEvent = ({
 	onClose = () => null,
 }) => {
+	const dispatch = useDispatch();
+
+	const entries = useSelector(selectEntries);
+	const modalData = useSelector(selectModalData);
+	const categories = useSelector(selectCategories);
+	const { day, month, year } = useSelector(selectDate);
+
+	// Edit mode when the modal payload carries an entry id.
+	const editEntry = React.useMemo(() => (
+		modalData?.id ? entries.find(({ id }) => id === modalData.id) : null
+	), [ modalData, entries ]);
+
+	const initialData = React.useMemo(() => {
+		let [ start, end ] = [ null, null ];
+
+		if (editEntry) {
+			[ start, end ] = [ new Date(editEntry.start), new Date(editEntry.end) ];
+		} else if (modalData?.start && modalData?.end) {
+			// Prefilled by clicking an empty calendar slot.
+			[ start, end ] = [ new Date(modalData.start), new Date(modalData.end) ];
+		} else {
+			// Default: next full hour on the selected day.
+			const now = new Date();
+			start = new Date(year, month, day, now.getHours() + 1, 0, 0, 0);
+			end = new Date(year, month, day, now.getHours() + 2, 0, 0, 0);
+		}
+
+		return {
+			title: editEntry?.title || '',
+			description: editEntry?.description || '',
+			category: editEntry?.category || categories[0]?.name || 'default',
+			startDate: toDateInputValue(start),
+			startTime: toTimeInputValue(start),
+			endDate: toDateInputValue(end),
+			endTime: toTimeInputValue(end),
+		};
+	}, []);
+
+	const [ error, setError ] = React.useState(null);
+	const [ data, setData ] = React.useState(initialData);
+
+	const handleChange = (e) => {
+		setError(null);
+
+		setData({
+			...data, [e.target.name]: e.target.value
+		});
+	};
+
+	const handleSubmit = (e) => {
+		e.preventDefault();
+
+		const start = fromInputValues(data.startDate, data.startTime);
+		const end = fromInputValues(data.endDate, data.endTime);
+
+		if (!data.title.trim().length) {
+			setError('Please add a title');
+			return;
+		}
+
+		if (end <= start) {
+			setError('End must be after start');
+			return;
+		}
+
+		const payload = {
+			title: data.title.trim(),
+			description: data.description,
+			category: data.category,
+			start: start.toISOString(),
+			end: end.toISOString(),
+		};
+
+		if (editEntry) {
+			dispatch(updateEntry(editEntry.id, payload));
+		} else {
+			dispatch(addEntry(payload));
+		}
+
+		onClose();
+	};
+
+	const activeColor = React.useMemo(() => (
+		categories.find(({ name }) => name === data.category)?.color || '#2C52BA'
+	), [ categories, data.category ]);
+
 	return (
 		<>
 			<aside
 				className="entries__form"
-				style={{ top: "5%", left: "5%", right: "5%", bottom: "5%", margin: "auto" }}
+				style={{ top: '80px', left: 0, right: 0, margin: '0 auto' }}
 			>
-				<aside className="form-modal-overlay hide-form-overlay" />
 				<div className="entries__form--header">
 					<div className="form-header--dragarea" />
-					<div 
+					<div
 						onClick={onClose}
 						data-tooltip="close form"
-						className="form--header__icon-close" 
+						className="form--header__icon-close"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -27,25 +146,30 @@ const CreateEvent = ({
 						</svg>
 					</div>
 				</div>
-				<form className="entry-form">
+				<form className="entry-form" onSubmit={handleSubmit}>
 					<div className="entries__form--body">
 						<div className="form--body__title form-body-single">
 							<input
 								type="text"
+								name="title"
+								value={data.title}
 								placeholder="Add title"
+								onChange={handleChange}
 								className="form--body__title-input"
 								maxLength={50}
 								spellCheck="false"
-								required
+								autoFocus
 							/>
 						</div>
 						<div className="form--body__description form-body-single">
 							<textarea
+								name="description"
+								value={data.description}
+								onChange={handleChange}
 								placeholder="Add description"
 								className="form--body__description-input"
 								maxLength={200}
 								spellCheck="false"
-								defaultValue={""}
 							/>
 						</div>
 						<div className="form--body__start form-body-double">
@@ -60,22 +184,22 @@ const CreateEvent = ({
 									<path d="m15.3 16.7 1.4-1.4-3.7-3.7V7h-2v5.4ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-10Zm0 8q3.325 0 5.663-2.337Q20 15.325 20 12t-2.337-5.663Q15.325 4 12 4T6.338 6.337Q4 8.675 4 12t2.338 5.663Q8.675 20 12 20Z" />
 								</svg>
 							</div>
-							<div className="form--body__start-inputs">
-								<span
-									className="form--body-start__date"
-									data-form-date-type="start"
-									data-form-date="2024-1-6"
-								>
-									Feb 6, 2024
-								</span>
-								<div className="form-br" />
-								<span
-									className="form--body-start__time"
-									data-form-time-type="start"
-									data-form-time="22:00"
-								>
-									10:00pm
-								</span>
+							<div className="form--body__start-inputs" style={{ display: 'flex', gap: '8px' }}>
+								<input
+									type="date"
+									name="startDate"
+									style={fieldStyle}
+									value={data.startDate}
+									onChange={handleChange}
+								/>
+								<input
+									type="time"
+									name="startTime"
+									step={900}
+									style={fieldStyle}
+									value={data.startTime}
+									onChange={handleChange}
+								/>
 							</div>
 						</div>
 						<div className="form--body__end form-body-double">
@@ -90,22 +214,22 @@ const CreateEvent = ({
 									<path d="m15.3 16.7 1.4-1.4-3.7-3.7V7h-2v5.4ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-10Zm0 8q3.325 0 5.663-2.337Q20 15.325 20 12t-2.337-5.663Q15.325 4 12 4T6.338 6.337Q4 8.675 4 12t2.338 5.663Q8.675 20 12 20Z" />
 								</svg>
 							</div>
-							<div className="form--body__end-inputs">
-								<span
-									className="form--body-end__date"
-									data-form-date-type="end"
-									data-form-date="2024-1-6"
-								>
-									Feb 6, 2024
-								</span>
-								<div className="form-br" />
-								<span
-									className="form--body-end__time"
-									data-form-time-type="end"
-									data-form-time="22:30"
-								>
-									10:30pm
-								</span>
+							<div className="form--body__end-inputs" style={{ display: 'flex', gap: '8px' }}>
+								<input
+									type="date"
+									name="endDate"
+									style={fieldStyle}
+									value={data.endDate}
+									onChange={handleChange}
+								/>
+								<input
+									type="time"
+									name="endTime"
+									step={900}
+									style={fieldStyle}
+									value={data.endTime}
+									onChange={handleChange}
+								/>
 							</div>
 						</div>
 						<div className="form--body__category form-body-double">
@@ -115,78 +239,69 @@ const CreateEvent = ({
 									height="24px"
 									viewBox="0 0 24 24"
 									width="24px"
-									fill="#2C52BA"
+									fill={activeColor}
 								>
 									<path d="M0 0h24v24H0z" fill="none" />
-									<path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
+									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
 								</svg>
 							</div>
-							<div className="form--body__category-inputs">
-								<aside
-									className="close-options-floating__btn"
-									style={{
-										zIndex: -1,
-										userSelect: "none",
-										pointerEvents: "none",
-										opacity: 0,
-										boxShadow: "none",
-									}}
+							<div className="form--body__category-inputs" style={{ width: '100%' }}>
+								<select
+									name="category"
+									style={fieldStyle}
+									value={data.category}
+									onChange={handleChange}
 								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										height={20}
-										width={20}
-										fill="var(--white3)"
-									>
-										<path d="M6.062 15 5 13.938 8.938 10 5 6.062 6.062 5 10 8.938 13.938 5 15 6.062 11.062 10 15 13.938 13.938 15 10 11.062Z" />
-									</svg>
-								</aside>
-								<div
-									className="form--body__category-modal--wrapper"
-									data-form-category="default"
-								>
-									<div
-										className="form--body__category-modal--wrapper-selection"
-										style={{ backgroundColor: "rgb(44, 82, 186)" }}
-									>
-										<span
-											className="form--body__category-modal--wrapper__color"
-											style={{ backgroundColor: "rgb(44, 82, 186)" }}
-										/>{" "}
-										<span className="form--body__category-modal--wrapper__title">
-											default
-										</span>
-									</div>
-									<span className="form--body__category-modal hide-form-category-modal" />
-								</div>
+									{categories.map(({ id, name }) => (
+										<option key={id} value={name}>
+											{name}
+										</option>
+									))}
+								</select>
 							</div>
 						</div>
+						{error ? (
+							<div
+								className="form-input-error"
+								style={{ color: '#EE756A', padding: '4px 12px', fontSize: '0.8rem' }}
+							>
+								{error}
+							</div>
+						) : null}
 					</div>
-					<div className="entries__form--footer">
+					<div
+						className="entries__form--footer"
+						style={{
+							gap: '8px',
+							display: 'flex',
+							padding: '12px 16px',
+							justifyContent: 'flex-end',
+						}}
+					>
 						<button
-							className="form--footer__button-cancel"
-							type="reset"
+							type="button"
 							role="button"
 							aria-label="button"
+							onClick={onClose}
+							className="btn-root form--footer__button-cancel"
 						>
-							reset
-						</button>{" "}
+							Cancel
+						</button>
 						<button
-							className="form--footer__button-save"
 							type="submit"
 							role="button"
 							aria-label="button"
-							data-form-action="create"
-							data-form-id
+							className="btn-root form--footer__button-save"
 						>
-							save
+							{editEntry ? 'Update' : 'Save'}
 						</button>
 					</div>
 				</form>
 			</aside>
-			<aside 
+			<aside
 				className="form-overlay"
 				onClick={onClose}
+				style={{ position: 'fixed', inset: 0 }}
 			/>
 		</>
 	);

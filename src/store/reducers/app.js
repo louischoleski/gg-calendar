@@ -11,6 +11,7 @@ export const appState = {
 	loading: false,
 	shortcut: true,
 	modal: 'CLOSED',
+	modalData: null,
 	animation: true,
 	collapsed: {
 		header: false,
@@ -128,13 +129,19 @@ const appReducer = (state = appState, action) => {
 				view: toggleStringArray(state.view, BASE_CALENDAR_KEYS)
 			};
 		case actionTypes.APP_MODAL_UPDATED:
+			// Re-dispatching the same section without a payload closes it.
+			if (state.modal === action.modal && !action.data) {
+				return { ...state, modal: MODAL_SECTIONS.CLOSED, modalData: null };
+			}
+
 			return {
-				...state, 
-				modal: (
-					state.modal === action.modal ? 
-					MODAL_SECTIONS.CLOSED : 
-					action.modal
-				)
+				...state,
+				modal: action.modal,
+				modalData: (
+					action.modal === MODAL_SECTIONS.CLOSED ?
+					null :
+					(action.data || null)
+				),
 			};
 		case actionTypes.APP_SHORTCUT_TOGGLED:
 			return { ...state, shortcut: !state.shortcut };

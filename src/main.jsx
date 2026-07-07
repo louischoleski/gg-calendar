@@ -1,12 +1,14 @@
+import { throttle } from 'lodash';
 import { Suspense } from 'react';
-import { jwtDecode } from 'jwt-decode';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import { configureStore } from '@reduxjs/toolkit';
 
 import App from '@app';
 // import { Loader } from '@components';
+import { MODAL_SECTIONS } from '@constants/modals';
 import rootReducer, { preloadedState } from '@store/rootReducer';
+import storePersist, { localStorageHealthCheck } from '@store/storePersist';
 
 /*!*************************************!*\
 // (CSS) 
@@ -47,11 +49,55 @@ import "./static/css/aside/info.css";
 import "./static/css/aside/shortcuts.css";
 // </aside>
 
+const PERSIST_KEY = 'gg-calendar-state';
+
+localStorageHealthCheck();
+
+// Rehydrate persisted state (entries, categories, preferences).
+const persisted = storePersist.get(PERSIST_KEY);
+
 const store = configureStore({
-	preloadedState,
+	preloadedState: {
+		...preloadedState,
+		...(persisted ? {
+			app: {
+				...preloadedState.app,
+				...persisted.app,
+				loading: false,
+				modalData: null,
+				modal: MODAL_SECTIONS.CLOSED,
+			},
+			entries: {
+				...preloadedState.entries,
+				...persisted.entries,
+			},
+		} : {}),
+	},
 	reducer: rootReducer,
 	devTools: import.meta.env.PROD === false, // Enable Redux DevTools in development mode
 });
+
+// Persist durable state on every change (throttled).
+const persistState = throttle(() => {
+	const { app, entries } = store.getState();
+
+	storePersist.set(PERSIST_KEY, {
+		app: {
+			view: app.view,
+			theme: app.theme,
+			shortcut: app.shortcut,
+			animation: app.animation,
+			collapsed: app.collapsed,
+			categories: app.categories,
+		},
+		entries,
+	});
+}, 500);
+
+store.subscribe(persistState);
+
+// Don't lose the trailing (throttled) write when the tab closes.
+window.addEventListener('beforeunload', () => persistState.flush());
 
 const root = document.getElementById('root');
 

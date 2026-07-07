@@ -2,15 +2,32 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { isToday } from '@utils/dates';
+import { setModal } from '@store/actions/app';
 import { selectDate } from '@store/selectors/app';
+import { MODAL_SECTIONS } from '@constants/modals';
+import { selectCategoryColors } from '@store/selectors/entries';
 import { CALENDAR_LABELS, WEEK_START } from '@constants/calendar';
 
 import {
-	setDayTitleStyle, 
+	setDayTitleStyle,
 	setDayTitleClassName,
 } from './DayHeader.controller';
 
-const DayHeader = ({}) => {
+const DayHeader = ({ allDayBoxes = [] }) => {
+	const dispatch = useDispatch();
+
+	const categoryColors = useSelector(selectCategoryColors);
+
+	const onAllDayBoxClick = (e, id) => {
+		e.stopPropagation();
+
+		dispatch(setModal(MODAL_SECTIONS.ENTRY_OPTIONS, {
+			id,
+			x: e.clientX,
+			y: e.clientY,
+		}));
+	};
+
 	const {
 		day: selectedDay, 
 		year: selectedYear,
@@ -56,7 +73,30 @@ const DayHeader = ({}) => {
 				<div className="dv-gmt">
 					UTC {gmtOffset}
 				</div>
-				<div className="dayview--ontop-container" data-dv-top="true" />
+				<div className="dayview--ontop-container" data-dv-top="true">
+					{allDayBoxes.map(({ id, title, category }) => (
+						<div
+							key={id}
+							onClick={(e) => onAllDayBoxClick(e, id)}
+							style={{
+								height: '18px',
+								margin: '1px 8px',
+								padding: '0 8px',
+								overflow: 'hidden',
+								cursor: 'pointer',
+								fontSize: '0.75rem',
+								lineHeight: '18px',
+								borderRadius: '4px',
+								whiteSpace: 'nowrap',
+								color: 'var(--white1)',
+								textOverflow: 'ellipsis',
+								backgroundColor: categoryColors[category] || 'rgb(44, 82, 186)',
+							}}
+						>
+							{title}
+						</div>
+					))}
+				</div>
 			</div>
 		</>
 	);

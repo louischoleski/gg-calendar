@@ -1,6 +1,3 @@
-import { configureStore } from '@reduxjs/toolkit';
+export { default as storePersist, localStorageHealthCheck } from './storePersist';
 
-import rootReducer from './rootReducer';
-import storePersist, { localStorageHealthCheck } from './storePersist';
-
-localStorageHealthCheck();
+export { default as rootReducer, preloadedState } from './rootReducer';

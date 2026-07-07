@@ -9,6 +9,7 @@ import Create from './sections/Create';
 import Search from './sections/Search';
 import Settings from './sections/Settings';
 import Shortcuts from './sections/Shortcuts';
+import EntryOptions from './sections/EntryOptions';
 
 const Modal = () => {
 	const dispatch = useDispatch();
@@ -94,6 +95,14 @@ const Modal = () => {
 	if (modalSection === MODAL_SECTIONS.CREATE_CATEGORY) {
 		return (
 			<Create.Category
+				onClose={onClose}
+			/>
+		);
+	}
+
+	if (modalSection === MODAL_SECTIONS.ENTRY_OPTIONS) {
+		return (
+			<EntryOptions
 				onClose={onClose}
 			/>
 		);

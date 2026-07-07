@@ -36,6 +36,12 @@ const Category = () => {
 		dispatch(updateCategories(activeIndex, activeCategory));
 	}
 
+	const onCategoryDelete = (categoryId) => {
+		dispatch(setCategories(
+			categories.filter(({ id }) => id !== categoryId)
+		));
+	}
+
 	return (
 		<div className="sb__categories">
 			<div
@@ -59,10 +65,14 @@ const Category = () => {
 					</div>
 					*/}
 				</div>
-				{/*
-				<div className="sbch-plus" onClick={toggleCreateCategory}>
+				<div
+					className="sbch-plus"
+					onClick={toggleCreateCategory}
+					data-tooltip="new category"
+					style={{ cursor: 'pointer' }}
+				>
 					<svg
-						xmlns="http://www.w3.sorg/2000/svg"
+						xmlns="http://www.w3.org/2000/svg"
 						style={{ pointerEvents: "none" }}
 						fill="var(--white2)"
 						height={24}
@@ -71,14 +81,13 @@ const Category = () => {
 						<path d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6Z" />
 					</svg>
 				</div>
-				*/}
 			</div>
 			<div className="sb__categories--body">
 				<div className="sb__categories--body-form">
 					{!isCategoryCollapsed ? (
 						categories.map(({ id, ...rest }, categoryIdx) => (
-							<CategoryOption 
-								onDeleteClick={onCategoryClick}
+							<CategoryOption
+								onDeleteClick={onCategoryDelete}
 								showDelete={categoryIdx != 0}
 								onClick={onCategoryClick}
 								key={id} id={id}

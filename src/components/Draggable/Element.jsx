@@ -1,195 +1,138 @@
 import React from 'react';
 
-import { useContext } from './Core';
+import { QUARTER_HEIGHT, QUARTERS_PER_DAY } from '@utils/entries';
 
-export const setElementStyle = (coord = {}, height = 0, isDragging = false, isResizing = false) => ({
-	top: '0px',
-	left: '0px',
-	minHeight: '12.5px',
-	height: `${+height * 12.5}px`,
-	width: 'calc((100% - 4px) * 1)',
-	zIndex: (isDragging || isResizing) ? '100' : '0',
-	cursor: isResizing ? 'row-resize' : 'move', // Adjust cursor for resizing
-	transform: `translate(calc((100% - 0px) * 0 + 0px), ${+coord.y * 12.5}px)`,
-});
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
+/**
+ * Draggable.Element
+ * Snap-drags (move) and resizes its child vertically on a 15-minute
+ * (12.5px) grid. Less than 4px of movement is treated as a click.
+ *
+ * @param {number} y - starting row (15 min intervals from midnight)
+ * @param {number} h - height in 15 min intervals
+ * @param {func} onClick - fired when the interaction was a plain click
+ * @param {func} onCommit - fired with ({ y, h }) after a drag/resize
+ */
 const Element = ({
-	id = null, 
-	lockX = false,
-	lockY = false,
-	children = null, 
-	x = 0,  y = 0, h = 0, 
+	children = null,
+	y = 0, h = 1,
+	onClick = () => null,
+	onCommit = () => null,
 }) => {
-	const isResizingRef = React.useRef(false);
-	const positionRef = React.useRef({ x: 0, y: 0 }); // Use a ref to store the position
+	const [ pos, setPos ] = React.useState({ y, h });
+	const [ mode, setMode ] = React.useState(null); // null | 'move' | 'resize'
 
-	const [ height, setHeight ] = React.useState(0);
-	const [ isDragging, setIsDragging ] = React.useState(false);
-	const [ position, setPosition ] = React.useState({ x: 0, y: 0 });
-	const [ prevPosition, setPrevPosition ] = React.useState({ x: 0, y: 0 });
-
-	const { data: { parentOffsetTop, parentScrollTop, parentBoundingClientRect }, updateData } = useContext();
-
-	const headerOffset = parseInt(parentOffsetTop);
-	const amountScrolled = parseInt(parentScrollTop);
-
-	// Initialize.
 	React.useEffect(() => {
-		setHeight(h);
-		setPosition({ x, y });
-		setPrevPosition({ x, y });
-		positionRef.current = { x, y };
-	}, [ h, x, y ]);
+		setPos({ y, h });
+	}, [ y, h ]);
 
-	const isResizing = React.useMemo(() => (
-		isResizingRef.current
-	), [ isResizingRef.current ]);
+	const beginSession = (e, sessionMode) => {
+		if (e.button !== 0) return;
 
-	const setIsResizing = (flag = false) => {
-		isResizingRef.current = flag;
-	}
-
-	const updatePosition = ({ x, y }) => {
-		setPosition({ x, y });
-		positionRef.current = { x, y };
-	}
-
-	const handleMouseUp = (e) => {
 		e.preventDefault();
-		setIsDragging(false);
-	}
+		e.stopPropagation();
 
-	const handleMouseDown = (e) => {
-		e.preventDefault();
+		const session = {
+			mode: sessionMode,
+			pageY: e.pageY,
+			y: pos.y,
+			h: pos.h,
+			moved: false,
+			last: { y: pos.y, h: pos.h },
+		};
 
-		setIsDragging(true);
+		const handleMove = (ev) => {
+			if (!session.moved && Math.abs(ev.pageY - session.pageY) > 3) {
+				session.moved = true;
+				setMode(session.mode);
+			}
 
-		const boxHeight = height * 12.5;
-		const startTop = position.y * 12.5;
-		const [ tempX, tempY ] = [ e.pageX, e.pageY ];
-		const startCursorY = e.pageY - parseInt(parentOffsetTop);
+			if (!session.moved) return;
 
-		const headerOffset = +parentBoundingClientRect.top.toFixed(2);
+			const deltaQuarters = Math.round(
+				(ev.pageY - session.pageY) / QUARTER_HEIGHT
+			);
 
-		let [ sX, sY ] = [ 0, 0 ];
-
-		/** DRAG NORTH SOUTH */
-		const _handleMouseMove = (e) => {
-			if (isResizingRef?.current) {
-				console.log('Resizing......................');
-
-				setIsResizing(true);
-
-				// Set new height.
-				const box = e.target.parentElement;
-				const boxTop = box.offsetTop;
-
-				const newHeight = Math.round((
-					e.pageY + 
-					amountScrolled - 
-					boxTop - 
-					headerOffset
-				) / 12.5);
-
-				setHeight(newHeight);
+			if (session.mode === 'move') {
+				session.last = {
+					y: clamp(session.y + deltaQuarters, 0, QUARTERS_PER_DAY - session.h),
+					h: session.h,
+				};
 			} else {
-				sX = Math.abs(e.clientX - tempX);
-				sY = Math.abs(e.clientY - tempY);
+				session.last = {
+					y: session.y,
+					h: clamp(session.h + deltaQuarters, 1, QUARTERS_PER_DAY - session.y),
+				};
+			}
 
-				const currentCursorY = e.pageY - headerOffset;
-				const newOffsetY = currentCursorY - startCursorY;
+			setPos(session.last);
+		};
 
-				let newTop = Math.round((newOffsetY + startTop) / 12.5);
+		const handleUp = (ev) => {
+			document.removeEventListener('mousemove', handleMove);
+			document.removeEventListener('mouseup', handleUp);
 
-				if (newTop < 0 || currentCursorY < 0) {
-					newTop = 0;
-					// } else if (newTop + boxHeight > 1188) {
-					// return;
-				}
+			setMode(null);
 
-				updatePosition({
-					x: lockX ? position.x : position.x + deltaX,
-					y: newTop,
-				});
+			if (!session.moved) {
+				onClick(ev);
+				return;
+			}
+
+			// Swallow the synthetic click that follows a drag so it
+			// doesn't reach the grid's click-to-create handler.
+			document.addEventListener('click', (ce) => {
+				ce.stopPropagation();
+			}, { capture: true, once: true });
+
+			if (session.last.y !== y || session.last.h !== h) {
+				onCommit(session.last);
 			}
 		};
 
-		const _handleMouseUp = () => {
-			setIsResizing(false);
-			setIsDragging(false);
-
-			setPrevPosition(positionRef.current);
-
-			document.removeEventListener('mousemove', _handleMouseMove);
-			document.removeEventListener('mouseup', _handleMouseUp);
-		};
-
-		document.addEventListener('mousemove', _handleMouseMove);
-		document.addEventListener('mouseup', _handleMouseUp);
+		document.addEventListener('mousemove', handleMove);
+		document.addEventListener('mouseup', handleUp);
 	};
 
-	const handleResizeMouseDown = (e) => {
-		console.log('Handle resize mouse down....');
-		setIsResizing(true);
-	};
-
-	// Clone element.
-	const ghostElement = React.cloneElement(children, {
+	return React.cloneElement(children, {
+		onMouseDown: (e) => beginSession(e, 'move'),
 		className: [
 			children.props.className, 'dv-box',
-			isDragging ? 'dv-box-dragging' : null,
-			// isResizing ? 'dv-box-resizing' : null,
-			'dv-temporary-box'
-		].join(' ').trim(),
+			mode === 'move' ? 'dv-box-dragging' : null,
+			mode === 'resize' ? 'dv-box-resizing' : null,
+		].filter(Boolean).join(' '),
 		style: {
+			top: '0px',
+			left: '0px',
+			position: 'absolute',
+			width: 'calc((100% - 4px) * 1)',
 			...children.props.style,
-			...setElementStyle(prevPosition, height, isDragging, isResizing),
-		},
-		onMouseDown: (e) => e.stopPropagation(),
-	});
-
-	// Set main element.
-	const mainElement = React.cloneElement(children, {
-		onMouseUp: handleMouseUp,
-		onMouseDown: handleMouseDown,
-		className: [
-			children.props.className, 'dv-box',
-			isDragging ? 'dv-box-dragging' : null,
-			isResizing ? 'dv-box-resizing' : null,
-		].join(' ').trim(),
-		style: {
-			...children.props.style, 
-			...setElementStyle(position, height, isDragging, isResizing),
+			minHeight: `${QUARTER_HEIGHT}px`,
+			height: `${pos.h * QUARTER_HEIGHT}px`,
+			transform: `translateY(${pos.y * QUARTER_HEIGHT}px)`,
+			cursor: mode === 'resize' ? 'row-resize' : 'pointer',
+			zIndex: mode ? 100 : (children.props.style?.zIndex ?? 1),
 		},
 		children: [
-			children.props.children,
-			<div 
-				key="resize" 
-				className="dv-box-resize-s" 
-				onMouseDown={handleResizeMouseDown}
+			<React.Fragment key="content">
+				{children.props.children}
+			</React.Fragment>,
+			<div
+				key="resize"
+				className="dv-box-resize-s"
+				onMouseDown={(e) => beginSession(e, 'resize')}
+				style={{
+					left: 0,
+					right: 0,
+					bottom: 0,
+					height: '7px',
+					cursor: 'row-resize',
+					position: 'absolute',
+				}}
 			/>
-		]
+		],
 	});
-
-	React.useEffect(() => {
-		console.log('T DATA::', isResizing, isResizing);
-	}, [ isResizing, isResizing ]);
-
-	return (
-		<>
-			{(isDragging || isResizing) ? (
-				ghostElement
-			) : null}
-			{mainElement}
-			{isDragging ? (
-				<aside 
-					className="resize-overlay hide-resize-overlay" 
-					style={{ backgroundColor: 'transparent' }} 
-				/>
-			) : null}
-		</>
-	);
 };
 
 export default Element;
-
