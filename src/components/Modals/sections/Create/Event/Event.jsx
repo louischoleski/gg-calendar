@@ -7,6 +7,8 @@ import { selectEntries } from '@store/selectors/entries';
 import { addEntry, updateEntry } from '@store/actions/entries';
 import { selectDate, selectModalData, selectCategories } from '@store/selectors/app';
 
+import { TimePicker, FormDatepicker, formatDateTitle, formatTimeTitle } from './FormPickers';
+
 const pad = (n) => String(n).padStart(2, '0');
 
 const toDateInputValue = (d) => (
@@ -81,6 +83,72 @@ const CreateEvent = ({
 	const formRef = React.useRef(null);
 	const [ isDragging, setIsDragging ] = React.useState(false);
 	const [ position, setPosition ] = React.useState(null); // null = default (centered)
+
+	// Which date/time picker popup is open, and where.
+	// { kind: 'date'|'time', field: 'start'|'end', x, y } | null
+	const [ picker, setPicker ] = React.useState(null);
+
+	const openPicker = (e, kind, field) => {
+		const rect = e.currentTarget.getBoundingClientRect();
+
+		setPicker({
+			kind, field,
+			x: rect.left,
+			y: rect.bottom + 4,
+		});
+	};
+
+	const closePicker = () => setPicker(null);
+
+	// Picking a date syncs the other field so start never trails end
+	// (like the vanilla form datepicker).
+	const onPickDate = (day) => {
+		const value = [
+			day.getFullYear(),
+			String(day.getMonth() + 1).padStart(2, '0'),
+			String(day.getDate()).padStart(2, '0'),
+		].join('-');
+
+		const next = { ...data, [`${picker.field}Date`]: value };
+
+		if (picker.field === 'start' && value > next.endDate) {
+			next.endDate = value;
+		}
+
+		if (picker.field === 'end' && value < next.startDate) {
+			next.startDate = value;
+		}
+
+		setError(null);
+		setData(next);
+	};
+
+	// Picking a start time at/after the end time bumps the end ahead
+	// (next hour, or 12:30am next day from 23:45 — like vanilla).
+	const onPickTime = (time) => {
+		const next = { ...data, [`${picker.field}Time`]: time };
+
+		if (picker.field === 'start' && next.startDate === next.endDate && time >= next.endTime) {
+			const [ h, m ] = time.split(':').map(Number);
+
+			if (h === 23 && m === 45) {
+				const [ y, mo, d ] = next.startDate.split('-').map(Number);
+				const nextDay = new Date(y, mo - 1, d + 1);
+
+				next.endDate = [
+					nextDay.getFullYear(),
+					String(nextDay.getMonth() + 1).padStart(2, '0'),
+					String(nextDay.getDate()).padStart(2, '0'),
+				].join('-');
+				next.endTime = '00:30';
+			} else {
+				next.endTime = `${String(h < 23 ? h + 1 : 23).padStart(2, '0')}:${String(h < 23 ? m : 45).padStart(2, '0')}`;
+			}
+		}
+
+		setError(null);
+		setData(next);
+	};
 
 	// Grab the form header to drag the form anywhere; while dragging
 	// the form turns translucent so the calendar stays visible.
@@ -252,22 +320,30 @@ const CreateEvent = ({
 									<path d="m15.3 16.7 1.4-1.4-3.7-3.7V7h-2v5.4ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-10Zm0 8q3.325 0 5.663-2.337Q20 15.325 20 12t-2.337-5.663Q15.325 4 12 4T6.338 6.337Q4 8.675 4 12t2.338 5.663Q8.675 20 12 20Z" />
 								</svg>
 							</div>
-							<div className="form--body__start-inputs" style={{ display: 'flex', gap: '8px' }}>
-								<input
-									type="date"
-									name="startDate"
-									style={fieldStyle}
-									value={data.startDate}
-									onChange={handleChange}
-								/>
-								<input
-									type="time"
-									name="startTime"
-									step={900}
-									style={fieldStyle}
-									value={data.startTime}
-									onChange={handleChange}
-								/>
+							<div className="form--body__start-inputs">
+								<span
+									data-form-date-type="start"
+									data-form-date={data.startDate}
+									onClick={(e) => openPicker(e, 'date', 'start')}
+									className={[
+										'form--body-start__date',
+										(picker?.kind === 'date' && picker?.field === 'start') ? 'active-form-date' : null,
+									].filter(Boolean).join(' ')}
+								>
+									{formatDateTitle(data.startDate)}
+								</span>
+								<div className="form-br" />
+								<span
+									data-form-time-type="start"
+									data-form-time={data.startTime}
+									onClick={(e) => openPicker(e, 'time', 'start')}
+									className={[
+										'form--body-start__time',
+										(picker?.kind === 'time' && picker?.field === 'start') ? 'active-form-time' : null,
+									].filter(Boolean).join(' ')}
+								>
+									{formatTimeTitle(data.startTime)}
+								</span>
 							</div>
 						</div>
 						<div className="form--body__end form-body-double">
@@ -282,22 +358,30 @@ const CreateEvent = ({
 									<path d="m15.3 16.7 1.4-1.4-3.7-3.7V7h-2v5.4ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-10Zm0 8q3.325 0 5.663-2.337Q20 15.325 20 12t-2.337-5.663Q15.325 4 12 4T6.338 6.337Q4 8.675 4 12t2.338 5.663Q8.675 20 12 20Z" />
 								</svg>
 							</div>
-							<div className="form--body__end-inputs" style={{ display: 'flex', gap: '8px' }}>
-								<input
-									type="date"
-									name="endDate"
-									style={fieldStyle}
-									value={data.endDate}
-									onChange={handleChange}
-								/>
-								<input
-									type="time"
-									name="endTime"
-									step={900}
-									style={fieldStyle}
-									value={data.endTime}
-									onChange={handleChange}
-								/>
+							<div className="form--body__end-inputs">
+								<span
+									data-form-date-type="end"
+									data-form-date={data.endDate}
+									onClick={(e) => openPicker(e, 'date', 'end')}
+									className={[
+										'form--body-end__date',
+										(picker?.kind === 'date' && picker?.field === 'end') ? 'active-form-date' : null,
+									].filter(Boolean).join(' ')}
+								>
+									{formatDateTitle(data.endDate)}
+								</span>
+								<div className="form-br" />
+								<span
+									data-form-time-type="end"
+									data-form-time={data.endTime}
+									onClick={(e) => openPicker(e, 'time', 'end')}
+									className={[
+										'form--body-end__time',
+										(picker?.kind === 'time' && picker?.field === 'end') ? 'active-form-time' : null,
+									].filter(Boolean).join(' ')}
+								>
+									{formatTimeTitle(data.endTime)}
+								</span>
 							</div>
 						</div>
 						<div className="form--body__category form-body-double">
@@ -366,6 +450,26 @@ const CreateEvent = ({
 					</div>
 				</form>
 			</aside>
+			{picker?.kind === 'date' ? (
+				<FormDatepicker
+					onPick={onPickDate}
+					onClose={closePicker}
+					value={data[`${picker.field}Date`]}
+					position={{ x: picker.x, y: picker.y }}
+				/>
+			) : null}
+			{picker?.kind === 'time' ? (
+				<TimePicker
+					onPick={onPickTime}
+					onClose={closePicker}
+					value={data[`${picker.field}Time`]}
+					position={{ x: picker.x, y: picker.y }}
+					minTime={(
+						picker.field === 'end' &&
+						data.startDate === data.endDate
+					) ? data.startTime : null}
+				/>
+			) : null}
 			<aside
 				className="form-overlay"
 				onClick={onClose}
