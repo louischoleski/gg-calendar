@@ -27,11 +27,15 @@ const WeekCell = ({
 		}));
 	};
 
-	// Persist new start/end times after a vertical drag or resize.
-	const onBoxCommit = (id, { y, h }) => {
+	// Persist new start/end after a drag or resize; a horizontal drag
+	// lands on another column, shifting the day by the column delta.
+	const onBoxCommit = (id, { x, y, h }) => {
+		const target = new Date(date);
+		target.setDate(target.getDate() + (x - colIdx));
+
 		dispatch(updateEntry(id, {
-			start: quarterToDate(date, y).toISOString(),
-			end: quarterToDate(date, y + h).toISOString(),
+			start: quarterToDate(target, y).toISOString(),
+			end: quarterToDate(target, y + h).toISOString(),
 		}));
 	};
 
@@ -62,6 +66,8 @@ const WeekCell = ({
 			{data.map(({ id, category, title, coordinates }, rowIdx) => (
 				<Draggable.Element
 					key={id}
+					x={colIdx}
+					maxX={6}
 					y={coordinates.y}
 					h={coordinates.h}
 					onClick={(e) => onBoxClick(e, id)}

@@ -7,25 +7,30 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 /**
  * Draggable.Element
  * Snap-drags (move) and resizes its child vertically on a 15-minute
- * (12.5px) grid. Less than 4px of movement is treated as a click.
+ * (12.5px) grid; when `maxX` > 0 it also snap-drags horizontally
+ * across day columns. Less than 4px of movement is treated as a click.
  *
  * @param {number} y - starting row (15 min intervals from midnight)
  * @param {number} h - height in 15 min intervals
+ * @param {number} x - starting column (day of week)
+ * @param {number} maxX - last column index; 0 locks horizontal drag
  * @param {func} onClick - fired when the interaction was a plain click
- * @param {func} onCommit - fired with ({ y, h }) after a drag/resize
+ * @param {func} onCommit - fired with ({ x, y, h }) after a drag/resize
  */
 const Element = ({
 	children = null,
 	y = 0, h = 1,
+	x = 0, maxX = 0,
 	onClick = () => null,
 	onCommit = () => null,
 }) => {
-	const [ pos, setPos ] = React.useState({ y, h });
+	// xPx: horizontal offset in px (whole columns) while dragging.
+	const [ pos, setPos ] = React.useState({ y, h, xPx: 0 });
 	const [ mode, setMode ] = React.useState(null); // null | 'move' | 'resize'
 
 	React.useEffect(() => {
-		setPos({ y, h });
-	}, [ y, h ]);
+		setPos({ y, h, xPx: 0 });
+	}, [ y, h, x ]);
 
 	const beginSession = (e, sessionMode) => {
 		if (e.button !== 0) return;
@@ -33,17 +38,24 @@ const Element = ({
 		e.preventDefault();
 		e.stopPropagation();
 
+		// Column width measured from the containing column element.
+		const colWidth = e.currentTarget.parentElement?.getBoundingClientRect().width || 0;
+
 		const session = {
 			mode: sessionMode,
+			pageX: e.pageX,
 			pageY: e.pageY,
 			y: pos.y,
 			h: pos.h,
 			moved: false,
-			last: { y: pos.y, h: pos.h },
+			last: { y: pos.y, h: pos.h, dx: 0 },
 		};
 
 		const handleMove = (ev) => {
-			if (!session.moved && Math.abs(ev.pageY - session.pageY) > 3) {
+			if (!session.moved && (
+				Math.abs(ev.pageY - session.pageY) > 3 ||
+				Math.abs(ev.pageX - session.pageX) > 3
+			)) {
 				session.moved = true;
 				setMode(session.mode);
 				document.body.style.cursor = session.mode === 'move' ? 'move' : 'row-resize';
@@ -56,18 +68,31 @@ const Element = ({
 			);
 
 			if (session.mode === 'move') {
+				// Snap horizontal movement to whole day columns.
+				const deltaCols = (maxX > 0 && colWidth > 0) ?
+					clamp(
+						Math.round((ev.pageX - session.pageX) / colWidth),
+						-x, maxX - x
+					) : 0;
+
 				session.last = {
 					y: clamp(session.y + deltaQuarters, 0, QUARTERS_PER_DAY - session.h),
 					h: session.h,
+					dx: deltaCols,
 				};
 			} else {
 				session.last = {
 					y: session.y,
 					h: clamp(session.h + deltaQuarters, 1, QUARTERS_PER_DAY - session.y),
+					dx: 0,
 				};
 			}
 
-			setPos(session.last);
+			setPos({
+				y: session.last.y,
+				h: session.last.h,
+				xPx: session.last.dx * colWidth,
+			});
 		};
 
 		const handleUp = (ev) => {
@@ -88,8 +113,19 @@ const Element = ({
 				ce.stopPropagation();
 			}, { capture: true, once: true });
 
-			if (session.last.y !== y || session.last.h !== h) {
-				onCommit(session.last);
+			// Snap back; a commit re-renders the box at its new slot.
+			setPos({ y: session.last.y, h: session.last.h, xPx: 0 });
+
+			if (
+				session.last.y !== y ||
+				session.last.h !== h ||
+				session.last.dx !== 0
+			) {
+				onCommit({
+					y: session.last.y,
+					h: session.last.h,
+					x: x + session.last.dx,
+				});
 			}
 		};
 
@@ -130,7 +166,7 @@ const Element = ({
 			...children.props.style,
 			minHeight: `${QUARTER_HEIGHT}px`,
 			height: `${pos.h * QUARTER_HEIGHT}px`,
-			transform: `translateY(${pos.y * QUARTER_HEIGHT}px)`,
+			transform: `translate(${pos.xPx}px, ${pos.y * QUARTER_HEIGHT}px)`,
 			cursor: mode === 'move' ? 'move' : (mode === 'resize' ? 'row-resize' : 'pointer'),
 			zIndex: mode ? 100 : (children.props.style?.zIndex ?? 1),
 		},
