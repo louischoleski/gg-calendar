@@ -78,6 +78,51 @@ const CreateEvent = ({
 	const [ error, setError ] = React.useState(null);
 	const [ data, setData ] = React.useState(initialData);
 
+	const formRef = React.useRef(null);
+	const [ isDragging, setIsDragging ] = React.useState(false);
+	const [ position, setPosition ] = React.useState(null); // null = default (centered)
+
+	// Grab the form header to drag the form anywhere; while dragging
+	// the form turns translucent so the calendar stays visible.
+	const onDragStart = (e) => {
+		if (e.button !== 0 || !formRef.current) return;
+
+		e.preventDefault();
+
+		const rect = formRef.current.getBoundingClientRect();
+
+		let [ prevX, prevY ] = [ e.clientX, e.clientY ];
+		let [ left, top ] = [ rect.left, rect.top ];
+
+		setIsDragging(true);
+		setPosition({ top, left });
+
+		const handleMove = (ev) => {
+			left = Math.min(
+				Math.max(left + ev.clientX - prevX, 0),
+				window.innerWidth - rect.width
+			);
+			top = Math.min(
+				Math.max(top + ev.clientY - prevY, 0),
+				window.innerHeight - rect.height
+			);
+
+			[ prevX, prevY ] = [ ev.clientX, ev.clientY ];
+
+			setPosition({ top, left });
+		};
+
+		const handleUp = () => {
+			setIsDragging(false);
+
+			document.removeEventListener('mousemove', handleMove);
+			document.removeEventListener('mouseup', handleUp);
+		};
+
+		document.addEventListener('mousemove', handleMove);
+		document.addEventListener('mouseup', handleUp);
+	};
+
 	const handleChange = (e) => {
 		setError(null);
 
@@ -126,11 +171,21 @@ const CreateEvent = ({
 	return (
 		<>
 			<aside
+				ref={formRef}
 				className="entries__form"
-				style={{ top: '80px', left: 0, right: 0, margin: '0 auto' }}
+				style={{
+					...(position ?
+						{ top: `${position.top}px`, left: `${position.left}px`, margin: 0 } :
+						{ top: '80px', left: 0, right: 0, margin: '0 auto' }),
+					opacity: isDragging ? 0.8 : 1,
+					userSelect: isDragging ? 'none' : 'auto',
+				}}
 			>
 				<div className="entries__form--header">
-					<div className="form-header--dragarea" />
+					<div
+						className="form-header--dragarea"
+						onMouseDown={onDragStart}
+					/>
 					<div
 						onClick={onClose}
 						data-tooltip="close form"
@@ -146,7 +201,11 @@ const CreateEvent = ({
 						</svg>
 					</div>
 				</div>
-				<form className="entry-form" onSubmit={handleSubmit}>
+				<form
+					className="entry-form"
+					onSubmit={handleSubmit}
+					style={{ pointerEvents: isDragging ? 'none' : 'auto' }}
+				>
 					<div className="entries__form--body">
 						<div className="form--body__title form-body-single">
 							<input
