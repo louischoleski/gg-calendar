@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { selectModal } from '@store/selectors/app';
 import { MODAL_SECTIONS } from '@constants/modals';
+import { selectModal, selectShortcut } from '@store/selectors/app';
 import { CALENDAR_VIEWS, CALENDAR_SHORTCUTS } from '@constants/calendar';
 import { setView, setModal, toggleView, toggleTheme, toggleCollapsed } from '@store/actions/app';
 
@@ -12,7 +12,15 @@ const withShortcutsListener = (Component) => {
 
 		const modalSection = useSelector(selectModal);
 
+		const hasShortcut = useSelector(selectShortcut);
+
 		const handleKeyPress = React.useCallback((event) => {
+			// Shortcuts can be disabled from Settings ("Escape" keeps
+			// working — modal closing has its own listener).
+			if (!hasShortcut) {
+				return null;
+			}
+
 			// Verify modals are closed.
 			if (modalSection !== MODAL_SECTIONS.CLOSED) {
 				return null;
@@ -67,7 +75,7 @@ const withShortcutsListener = (Component) => {
 				case CALENDAR_SHORTCUTS.ESCAPE:
 					break;
 			}
-		}, [ modalSection ]);
+		}, [ modalSection, hasShortcut ]);
 
 		React.useEffect(() => {
 			document.addEventListener('keydown', handleKeyPress);
