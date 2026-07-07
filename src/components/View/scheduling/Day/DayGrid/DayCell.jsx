@@ -19,7 +19,7 @@ const DayCell = ({
 }) => {
 	const dispatch = useDispatch();
 
-	const { left = 0, width = 1, z = 1 } = layout || {};
+	const { left = 0, width = 1, z = 1, ontop = false } = layout || {};
 
 	// Persist new start/end times after a drag or resize.
 	const onCommit = ({ y, h }) => {
@@ -45,6 +45,7 @@ const DayCell = ({
 			onCommit={onCommit}
 		>
 			<div
+				className={ontop ? 'dv-box-ontop' : undefined}
 				data-dv-box-id={id}
 				data-dv-box-category={category}
 				data-dv-end-time={coordinates.e}

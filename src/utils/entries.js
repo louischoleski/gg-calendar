@@ -166,17 +166,36 @@ export const getEntriesByDateKey = (entries = []) => {
 	return map;
 };
 
+// Hardcoded left/width pairs per collision index, straight from the
+// original's setBoxWidthWeek / setBoxWidthDay tables.
+const WEEK_OVERLAP_LAYOUT = [
+	[ 0, 1 ], [ 0.2, 0.8 ], [ 0.45, 0.55 ], [ 0, 0.44 ], [ 0.5, 0.35 ],
+	[ 0.1, 0.4 ], [ 0.5, 0.5 ], [ 0.25, 0.25 ], [ 0.55, 0.35 ],
+	[ 0.55, 0.15 ], [ 0.7, 0.15 ], [ 0.85, 0.15 ],
+	[ 0.05, 0.25 ], [ 0.3, 0.25 ], [ 0.55, 0.25 ],
+];
+
+const DAY_OVERLAP_LAYOUT = [
+	[ 0, 1 ], [ 0.15, 0.85 ], [ 0.3, 0.7 ], [ 0.45, 0.55 ], [ 0.6, 0.4 ],
+	[ 0.75, 0.25 ], [ 0.1, 0.15 ], [ 0.25, 0.15 ], [ 0.4, 0.15 ],
+	[ 0.55, 0.15 ], [ 0.7, 0.15 ], [ 0.85, 0.15 ],
+	[ 0.05, 0.25 ], [ 0.3, 0.25 ], [ 0.55, 0.25 ],
+];
+
 /**
  * getColumnLayout
  * Assign left/width fractions + z-index to overlapping boxes of a
  * column so stacked events remain clickable (port of the original
- * setBoxWidthWeek / handleOverlap system).
+ * setBoxWidthWeek / handleOverlap system). Boxes past the first of a
+ * collision group are flagged `ontop` (they get the separator border).
  */
-export const getColumnLayout = (columnBoxes = []) => {
+export const getColumnLayout = (columnBoxes = [], view = 'week') => {
+	const table = view === 'day' ? DAY_OVERLAP_LAYOUT : WEEK_OVERLAP_LAYOUT;
+
 	const layout = {};
 
 	columnBoxes.forEach(({ id }) => {
-		layout[id] = { left: 0, width: 1, z: 1 };
+		layout[id] = { left: 0, width: 1, z: 2, ontop: false };
 	});
 
 	// Collision detection: pairs of boxes that intersect vertically.
@@ -201,8 +220,12 @@ export const getColumnLayout = (columnBoxes = []) => {
 			(a.coordinates.y - b.coordinates.y) || (a.coordinates.e - b.coordinates.e)
 		))
 		.forEach((box, i) => {
-			const left = Math.min((i % 15) * 0.15, 0.85);
-			layout[box.id] = { left, width: 1 - left, z: i + 1 };
+			// Same index wrap as the original handleOverlap.
+			const idx = i >= table.length ? i - 12 : i;
+
+			const [ left, width ] = table[idx];
+
+			layout[box.id] = { left, width, z: i + 2, ontop: i > 0 };
 		});
 
 	return layout;

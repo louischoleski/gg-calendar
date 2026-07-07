@@ -14,7 +14,7 @@ const DayGrid = ({ date = null, boxes = [] }) => {
 	const categoryColors = useSelector(selectCategoryColors);
 
 	const layout = React.useMemo(() => (
-		getColumnLayout(boxes)
+		getColumnLayout(boxes, 'day')
 	), [ boxes ]);
 
 	// Click an empty slot to create an entry at that time.

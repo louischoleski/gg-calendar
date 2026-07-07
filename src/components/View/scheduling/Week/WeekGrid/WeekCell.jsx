@@ -74,7 +74,10 @@ const WeekCell = ({
 					onCommit={(pos) => onBoxCommit(id, pos)}
 				>
 					<div
-						className="box"
+						className={[
+							'box',
+							layout[id]?.ontop ? 'box-ontop' : null,
+						].filter(Boolean).join(' ')}
 						box-idx={rowIdx}
 						data-box-id={id}
 						data-box-col={colIdx}
