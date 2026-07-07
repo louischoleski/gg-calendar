@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getWeekBoxes } from '@utils/entries';
 import { setDate } from '@store/actions/app';
 import { selectActiveEntries } from '@store/selectors/entries';
-import { selectDate, selectView } from '@store/selectors/app';
+import { selectDate, selectView, selectCollapsed } from '@store/selectors/app';
 import { CALENDAR_LABELS, BASE_CALENDAR_VIEWS, WEEK_START, TOTAL_DAY_WEEK } from '@constants/calendar';
 
 import WeekGrid from './WeekGrid';
@@ -27,6 +27,9 @@ const WeekScheduling = ({
 	const calendarView = useSelector(selectView);
 
 	const activeEntries = useSelector(selectActiveEntries);
+
+	// Eye toggle: grid reclaims the header space when collapsed.
+	const { header: isHeaderCollapsed } = useSelector(selectCollapsed);
 
 	const setPrevWeek = (d, m, y) => {
 		const prevWeek = new Date(
@@ -103,7 +106,10 @@ const WeekScheduling = ({
 				weekArray={weekArray}
 				allDayBoxes={boxes.allDay}
 			/>
-			<div className="weekview__grid">
+			<div className={[
+				'weekview__grid',
+				isHeaderCollapsed ? 'wvh-body-collapse' : null,
+			].filter(Boolean).join(' ')}>
 				<WeekSidebar />
 				<WeekGrid weekArray={weekArray} boxes={boxes.day} />
 				<div />

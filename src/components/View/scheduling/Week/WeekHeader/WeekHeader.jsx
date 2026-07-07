@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { selectDate } from '@store/selectors/app';
 import { MODAL_SECTIONS } from '@constants/modals';
 import { selectCategoryColors } from '@store/selectors/entries';
 import { setDate, setView, setModal } from '@store/actions/app';
+import { selectDate, selectCollapsed } from '@store/selectors/app';
 import { CALENDAR_LABELS, BASE_CALENDAR_VIEWS } from '@constants/calendar';
 
 import { setWeekViewHeaderClassName } from './WeekHeader.controller';
@@ -29,6 +29,9 @@ const WeekHeader = ({
 	const dispatch = useDispatch();
 
 	const categoryColors = useSelector(selectCategoryColors);
+
+	// Eye toggle (CollapseView) hides the day-names header.
+	const { header: isHeaderCollapsed } = useSelector(selectCollapsed);
 
 	const onAllDayBoxClick = (e, id) => {
 		e.stopPropagation();
@@ -105,7 +108,10 @@ const WeekHeader = ({
 	return (
 		<div className="weekview__top">
 			<div />
-			<div className="weekview--header">
+			<div className={[
+				'weekview--header',
+				isHeaderCollapsed ? 'wvh-collapse' : null,
+			].filter(Boolean).join(' ')}>
 				{daysOfWeek.map(({ date, num, isSelected, isToday }, dayIdx) => (
 					<div key={date} className="weekview--header-day">
 						<span className="weekview--header-day__title">

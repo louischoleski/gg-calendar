@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { isToday } from '@utils/dates';
 import { setModal } from '@store/actions/app';
-import { selectDate } from '@store/selectors/app';
 import { MODAL_SECTIONS } from '@constants/modals';
+import { selectDate, selectCollapsed } from '@store/selectors/app';
 import { selectCategoryColors } from '@store/selectors/entries';
 import { CALENDAR_LABELS, WEEK_START } from '@constants/calendar';
 
@@ -17,6 +17,9 @@ const DayHeader = ({ allDayBoxes = [] }) => {
 	const dispatch = useDispatch();
 
 	const categoryColors = useSelector(selectCategoryColors);
+
+	// Eye toggle (CollapseView) hides the day header.
+	const { header: isHeaderCollapsed } = useSelector(selectCollapsed);
 
 	const onAllDayBoxClick = (e, id) => {
 		e.stopPropagation();
@@ -56,7 +59,10 @@ const DayHeader = ({ allDayBoxes = [] }) => {
 
 	return (
 		<>
-			<div className="dayview--header">
+			<div className={[
+				'dayview--header',
+				isHeaderCollapsed ? 'dvh-collapse' : null,
+			].filter(Boolean).join(' ')}>
 				<div className="dayview--header-day">
 					<div className="dayview--header-day__title" style={setDayTitleStyle(hasToday)}>
 						{CALENDAR_LABELS.WEEK.SHORT[weekDay % 7]}
