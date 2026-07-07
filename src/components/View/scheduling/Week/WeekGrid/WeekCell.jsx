@@ -73,34 +73,36 @@ const WeekCell = ({
 					onClick={(e) => onBoxClick(e, id)}
 					onCommit={(pos) => onBoxCommit(id, pos)}
 				>
-					<div
-						className={[
-							'box',
-							layout[id]?.ontop ? 'box-ontop' : null,
-						].filter(Boolean).join(' ')}
-						box-idx={rowIdx}
-						data-box-id={id}
-						data-box-col={colIdx}
-						data-box-category={category}
-						data-end-time={coordinates.e}
-						data-start-time={coordinates.y}
-						data-time-intervals={coordinates.h}
-						style={setWeekCellStyle(
-							categoryColors[category] || 'rgb(44, 82, 186)',
-							layout[id]
-						)}
-					>
-						<div className="box__header">
-							<div className="box-title">
-								{title}
+					{({ y, h }) => (
+						<div
+							className={[
+								'box',
+								layout[id]?.ontop ? 'box-ontop' : null,
+							].filter(Boolean).join(' ')}
+							box-idx={rowIdx}
+							data-box-id={id}
+							data-box-col={colIdx}
+							data-box-category={category}
+							data-end-time={coordinates.e}
+							data-start-time={coordinates.y}
+							data-time-intervals={coordinates.h}
+							style={setWeekCellStyle(
+								categoryColors[category] || 'rgb(44, 82, 186)',
+								layout[id]
+							)}
+						>
+							<div className="box__header">
+								<div className="box-title">
+									{title}
+								</div>
+							</div>
+							<div className="box__content">
+								<span className="box-time">
+									{calcTime(y, +h)}
+								</span>
 							</div>
 						</div>
-						<div className="box__content">
-							<span className="box-time">
-								{calcTime(coordinates.y, +coordinates.h)}
-							</span>
-						</div>
-					</div>
+					)}
 				</Draggable.Element>
 			))}
 		</div>

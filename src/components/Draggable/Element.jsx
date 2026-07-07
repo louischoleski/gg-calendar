@@ -133,16 +133,24 @@ const Element = ({
 		document.addEventListener('mouseup', handleUp);
 	};
 
+	// Children may be a render function receiving the live { y, h }
+	// so labels (e.g. the time text) update while dragging/resizing.
+	const resolveChild = (livePos) => (
+		typeof children === 'function' ? children(livePos) : children
+	);
+
 	// Faded placeholder left at the original slot while dragging
-	// (like the original's temporary box).
-	const ghostElement = React.cloneElement(children, {
-		className: [ children.props.className, 'dv-box' ].join(' '),
+	// (like the original's temporary box / Google's lane placeholder).
+	const ghostChild = resolveChild({ y, h });
+
+	const ghostElement = React.cloneElement(ghostChild, {
+		className: [ ghostChild.props.className, 'dv-box' ].join(' '),
 		style: {
 			top: '0px',
 			left: '0px',
 			position: 'absolute',
 			width: 'calc((100% - 4px) * 1)',
-			...children.props.style,
+			...ghostChild.props.style,
 			opacity: 0.5,
 			pointerEvents: 'none',
 			minHeight: `${QUARTER_HEIGHT}px`,
@@ -151,10 +159,12 @@ const Element = ({
 		},
 	});
 
-	const mainElement = React.cloneElement(children, {
+	const mainChild = resolveChild({ y: pos.y, h: pos.h });
+
+	const mainElement = React.cloneElement(mainChild, {
 		onMouseDown: (e) => beginSession(e, 'move'),
 		className: [
-			children.props.className, 'dv-box',
+			mainChild.props.className, 'dv-box',
 			mode === 'move' ? 'dv-box-dragging' : null,
 			mode === 'resize' ? 'dv-box-resizing' : null,
 		].filter(Boolean).join(' '),
@@ -163,16 +173,22 @@ const Element = ({
 			left: '0px',
 			position: 'absolute',
 			width: 'calc((100% - 4px) * 1)',
-			...children.props.style,
+			...mainChild.props.style,
+			// While moving, the box expands to the full column width
+			// (like Google Calendar) even if it lives in a narrow lane.
+			...(mode === 'move' ? {
+				left: '0px',
+				width: 'calc((100% - 4px) * 1)',
+			} : {}),
 			minHeight: `${QUARTER_HEIGHT}px`,
 			height: `${pos.h * QUARTER_HEIGHT}px`,
 			transform: `translate(${pos.xPx}px, ${pos.y * QUARTER_HEIGHT}px)`,
 			cursor: mode === 'move' ? 'move' : (mode === 'resize' ? 'row-resize' : 'pointer'),
-			zIndex: mode ? 100 : (children.props.style?.zIndex ?? 1),
+			zIndex: mode ? 100 : (mainChild.props.style?.zIndex ?? 1),
 		},
 		children: [
 			<React.Fragment key="content">
-				{children.props.children}
+				{mainChild.props.children}
 			</React.Fragment>,
 			<div
 				key="resize"

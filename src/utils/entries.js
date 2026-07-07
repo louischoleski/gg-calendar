@@ -185,9 +185,12 @@ const DAY_OVERLAP_LAYOUT = [
 /**
  * getColumnLayout
  * Assign left/width fractions + z-index to overlapping boxes of a
- * column so stacked events remain clickable (port of the original
- * setBoxWidthWeek / handleOverlap system). Boxes past the first of a
- * collision group are flagged `ontop` (they get the separator border).
+ * column so stacked events remain clickable. Boxes are clustered
+ * into connected collision groups: groups of 2-3 use the original's
+ * cascade tables; 4+ fall back to equal side-by-side lanes so no
+ * event gets fully covered (the original's slot 4 wraps back to
+ * left 0 on top, burying earlier boxes). Boxes past the first of a
+ * group are flagged `ontop` (they get the separator border).
  */
 export const getColumnLayout = (columnBoxes = [], view = 'week') => {
 	const table = view === 'day' ? DAY_OVERLAP_LAYOUT : WEEK_OVERLAP_LAYOUT;
@@ -198,35 +201,50 @@ export const getColumnLayout = (columnBoxes = [], view = 'week') => {
 		layout[id] = { left: 0, width: 1, z: 2, ontop: false };
 	});
 
-	// Collision detection: pairs of boxes that intersect vertically.
-	const overlaps = [];
+	// Cluster into connected groups: chains of vertically
+	// intersecting boxes (interval merge over sorted boxes).
+	const sorted = [ ...columnBoxes ].sort((a, b) => (
+		(a.coordinates.y - b.coordinates.y) || (a.coordinates.e - b.coordinates.e)
+	));
 
-	for (let i = 0; i < columnBoxes.length; i++) {
-		for (let j = i + 1; j < columnBoxes.length; j++) {
-			const [ e1, e2 ] = [ columnBoxes[i], columnBoxes[j] ];
+	const groups = [];
+	let group = null;
+	let groupEnd = -1;
 
-			if (
-				e1.coordinates.y < e2.coordinates.e &&
-				e1.coordinates.e > e2.coordinates.y
-			) {
-				if (!overlaps.includes(e1)) overlaps.push(e1);
-				if (!overlaps.includes(e2)) overlaps.push(e2);
-			}
+	sorted.forEach((box) => {
+		if (group && box.coordinates.y < groupEnd) {
+			group.push(box);
+		} else {
+			group = [ box ];
+			groups.push(group);
 		}
-	}
 
-	overlaps
-		.sort((a, b) => (
-			(a.coordinates.y - b.coordinates.y) || (a.coordinates.e - b.coordinates.e)
-		))
-		.forEach((box, i) => {
-			// Same index wrap as the original handleOverlap.
-			const idx = i >= table.length ? i - 12 : i;
+		groupEnd = Math.max(groupEnd, box.coordinates.e);
+	});
 
-			const [ left, width ] = table[idx];
+	groups.forEach((boxes) => {
+		if (boxes.length < 2) return;
 
-			layout[box.id] = { left, width, z: i + 2, ontop: i > 0 };
-		});
+		if (boxes.length <= 3) {
+			// Original cascade layout.
+			boxes.forEach((box, i) => {
+				const [ left, width ] = table[i];
+				layout[box.id] = { left, width, z: i + 2, ontop: i > 0 };
+			});
+		} else {
+			// Equal side-by-side lanes: everything stays visible.
+			const laneWidth = 1 / boxes.length;
+
+			boxes.forEach((box, i) => {
+				layout[box.id] = {
+					left: i * laneWidth,
+					width: laneWidth,
+					z: i + 2,
+					ontop: i > 0,
+				};
+			});
+		}
+	});
 
 	return layout;
 };

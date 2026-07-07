@@ -44,31 +44,33 @@ const DayCell = ({
 			onClick={onClick}
 			onCommit={onCommit}
 		>
-			<div
-				className={ontop ? 'dv-box-ontop' : undefined}
-				data-dv-box-id={id}
-				data-dv-box-category={category}
-				data-dv-end-time={coordinates.e}
-				data-dv-start-time={coordinates.y}
-				data-dv-time-intervals={coordinates.h}
-				style={{
-					zIndex: z,
-					left: `calc((100% - 4px) * ${left})`,
-					width: `calc((100% - 4px) * ${width})`,
-					backgroundColor: categoryColors[category] || 'rgb(44, 82, 186)',
-				}}
-			>
-				<div className="dv-box__header">
-					<div className="dv-box-title">
-						{title}
+			{({ y, h }) => (
+				<div
+					className={ontop ? 'dv-box-ontop' : undefined}
+					data-dv-box-id={id}
+					data-dv-box-category={category}
+					data-dv-end-time={coordinates.e}
+					data-dv-start-time={coordinates.y}
+					data-dv-time-intervals={coordinates.h}
+					style={{
+						zIndex: z,
+						left: `calc((100% - 4px) * ${left})`,
+						width: `calc((100% - 4px) * ${width})`,
+						backgroundColor: categoryColors[category] || 'rgb(44, 82, 186)',
+					}}
+				>
+					<div className="dv-box__header">
+						<div className="dv-box-title">
+							{title}
+						</div>
+					</div>
+					<div className="dv-box__content">
+						<span className="dv-box-time">
+							{calcTime(y, +h)}
+						</span>
 					</div>
 				</div>
-				<div className="dv-box__content">
-					<span className="dv-box-time">
-						{calcTime(coordinates.y, +coordinates.h)}
-					</span>
-				</div>
-			</div>
+			)}
 		</Draggable.Element>
 	);
 }
