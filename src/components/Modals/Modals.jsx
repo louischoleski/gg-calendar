@@ -5,6 +5,8 @@ import { setModal } from '@store/actions/app';
 import { selectModal } from '@store/selectors/app';
 import { MODAL_SECTIONS } from '@constants/modals';
 
+import Datepicker from '@components/Datepicker';
+
 import Create from './sections/Create';
 import Search from './sections/Search';
 import Settings from './sections/Settings';
@@ -103,6 +105,14 @@ const Modal = () => {
 	if (modalSection === MODAL_SECTIONS.ENTRY_OPTIONS) {
 		return (
 			<EntryOptions
+				onClose={onClose}
+			/>
+		);
+	}
+
+	if (modalSection === MODAL_SECTIONS.DATEPICKER) {
+		return (
+			<Datepicker
 				onClose={onClose}
 			/>
 		);

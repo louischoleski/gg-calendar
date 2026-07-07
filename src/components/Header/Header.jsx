@@ -42,6 +42,16 @@ const Header = ({
 
 	const onSearchClick = () => dispatch(setModal(MODAL_SECTIONS.SEARCH));
 
+	// Open the datepicker popup anchored below the header title.
+	const onTitleClick = (e) => {
+		const rect = e.currentTarget.getBoundingClientRect();
+
+		dispatch(setModal(MODAL_SECTIONS.DATEPICKER, {
+			x: rect.left,
+			y: rect.bottom + 8,
+		}));
+	};
+
 	const onSettingClick = () => dispatch(setModal(MODAL_SECTIONS.SETTINGS));
 
 	const onCreateClick = () => dispatch(setModal(MODAL_SECTIONS.CREATE_EVENT));
@@ -214,6 +224,7 @@ const Header = ({
 							<button
 								role="button"
 								aria-label="button"
+								onClick={onTitleClick}
 								className="datetime-content"
 							>
 								<div className="datetime-content--title">

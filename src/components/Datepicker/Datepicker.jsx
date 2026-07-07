@@ -1,145 +1,190 @@
 import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
-const Datepicker = () => {
+import { isToday } from '@utils/dates';
+import { setDate } from '@store/actions/app';
+import { CALENDAR_LABELS } from '@constants/calendar';
+import { toDateKey, getEntriesByDateKey } from '@utils/entries';
+import { selectActiveEntries } from '@store/selectors/entries';
+import { selectDate, selectModalData } from '@store/selectors/app';
+
+// Header datepicker opens Sunday-first (like the original).
+const WEEKDAYS_NARROW = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S' ];
+
+const POPUP_WIDTH = 256;
+
+// Anchor the popup below the header title, clamped to the viewport.
+const setPopupPosition = (x = 0, y = 0) => ({
+	top: `${y || 56}px`,
+	left: `${Math.max(Math.min(x, window.innerWidth - POPUP_WIDTH - 8), 8)}px`,
+});
+
+const Datepicker = ({
+	onClose = () => null,
+}) => {
+	const dispatch = useDispatch();
+
+	const modalData = useSelector(selectModalData);
+	const activeEntries = useSelector(selectActiveEntries);
+
+	const {
+		day: selectedDay,
+		year: selectedYear,
+		month: selectedMonth,
+	} = useSelector(selectDate);
+
+	// Month currently displayed by the picker (navigates independently).
+	const [ displayed, setDisplayed ] = React.useState({
+		year: selectedYear,
+		month: selectedMonth,
+	});
+
+	// Snapshot position once; modalData is cleared on close.
+	const [ position ] = React.useState(() => (
+		setPopupPosition(modalData?.x, modalData?.y)
+	));
+
+	const onPrevClick = () => {
+		const prev = new Date(displayed.year, displayed.month - 1, 1);
+		setDisplayed({ year: prev.getFullYear(), month: prev.getMonth() });
+	};
+
+	const onNextClick = () => {
+		const next = new Date(displayed.year, displayed.month + 1, 1);
+		setDisplayed({ year: next.getFullYear(), month: next.getMonth() });
+	};
+
+	const onDayClick = (day) => {
+		dispatch(setDate(day.getFullYear(), day.getMonth(), day.getDate()));
+		onClose();
+	};
+
+	const entriesByKey = React.useMemo(() => (
+		getEntriesByDateKey(activeEntries)
+	), [ activeEntries ]);
+
+	// Sunday-first grid covering the displayed month.
+	const cells = React.useMemo(() => {
+		const first = new Date(displayed.year, displayed.month, 1);
+		const daysInMonth = new Date(displayed.year, displayed.month + 1, 0).getDate();
+		const leading = first.getDay();
+		const totalCells = Math.ceil((leading + daysInMonth) / 7) * 7;
+
+		return new Array(totalCells).fill(null).map((_, idx) => (
+			new Date(displayed.year, displayed.month, idx + 1 - leading)
+		));
+	}, [ displayed ]);
+
+	const setDatenameClassName = (day) => {
+		if (day.getMonth() !== displayed.month) {
+			return 'datepicker__body--datename datepicker__body--datename-disabled';
+		}
+
+		if (isToday(day)) {
+			return 'datepicker__body--datename datepicker__body--datename-today';
+		}
+
+		if (
+			day.getDate() === selectedDay &&
+			day.getMonth() === selectedMonth &&
+			day.getFullYear() === selectedYear
+		) {
+			return 'datepicker__body--datename datepicker__body--datename-selected';
+		}
+
+		if (entriesByKey[toDateKey(day)]) {
+			return 'datepicker__body--datename datepicker__body--datename-entries';
+		}
+
+		return 'datepicker__body--datename';
+	};
+
 	return (
-		<aside className="datepicker hide-datepicker" style={{ top: "12px" }}>
-			<div className="datepicker__header">
-				<button
-					className="datepicker-title"
-					role="button"
-					aria-label="button"
-				>
-					October 2022
-				</button>
-				<div className="datepicker-nav">
+		<>
+			<aside className="datepicker" style={position}>
+				<div className="datepicker__header">
 					<button
-						className="datepicker-nav--prev"
+						className="datepicker-title"
 						role="button"
 						aria-label="button"
 					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							height="24px"
-							viewBox="0 0 24 24"
-							width="24px"
-							fill="var(--white3)"
-							style={{ userSelect: "none", pointerEvents: "none" }}
-						>
-							<path d="M0 0h24v24H0z" fill="none" />
-							<path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-						</svg>
+						{CALENDAR_LABELS.MONTH.LONG[displayed.month]} {displayed.year}
 					</button>
-					<button
-						className="datepicker-nav--next"
-						role="button"
-						aria-label="button"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							height="24px"
-							viewBox="0 0 24 24"
-							width="24px"
-							fill="var(--white3)"
-							style={{ userSelect: "none", pointerEvents: "none" }}
+					<div className="datepicker-nav">
+						<button
+							className="datepicker-nav--prev"
+							onClick={onPrevClick}
+							role="button"
+							aria-label="button"
 						>
-							<path d="M0 0h24v24H0z" fill="none" />
-							<path d="M8.59 16.59L10 18l6-6-6-6L8.59 7.41 13.17 12z" />
-						</svg>
-					</button>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								height="24px"
+								viewBox="0 0 24 24"
+								width="24px"
+								fill="var(--white3)"
+								style={{ userSelect: "none", pointerEvents: "none" }}
+							>
+								<path d="M0 0h24v24H0z" fill="none" />
+								<path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+							</svg>
+						</button>
+						<button
+							className="datepicker-nav--next"
+							onClick={onNextClick}
+							role="button"
+							aria-label="button"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								height="24px"
+								viewBox="0 0 24 24"
+								width="24px"
+								fill="var(--white3)"
+								style={{ userSelect: "none", pointerEvents: "none" }}
+							>
+								<path d="M0 0h24v24H0z" fill="none" />
+								<path d="M8.59 16.59L10 18l6-6-6-6L8.59 7.41 13.17 12z" />
+							</svg>
+						</button>
+					</div>
 				</div>
-			</div>
-			<div className="datepicker__body">
-				<div className="datepicker__body--header">
-					<div className="datepicker__body--header-cell">S</div>
-					<div className="datepicker__body--header-cell">M</div>
-					<div className="datepicker__body--header-cell">T</div>
-					<div className="datepicker__body--header-cell">W</div>
-					<div className="datepicker__body--header-cell">T</div>
-					<div className="datepicker__body--header-cell">F</div>
-					<div className="datepicker__body--header-cell">S</div>
-				</div>
-				<div className="datepicker__body--dates" />
-			</div>
-			<aside className="datepicker-change-date hide-dpcd">
-				<aside className="close-change-date">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						height="18px"
-						viewBox="0 0 24 24"
-						width="18px"
-						fill="var(--white3)"
-					>
-						<path d="M0 0h24v24H0z" fill="none" />
-						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-					</svg>
-				</aside>
-				<div className="yearpicker">
-					<button className="yearpicker-prev" type="text">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							height="18px"
-							viewBox="0 0 24 24"
-							width="18px"
-							fill="var(--white4)"
-						>
-							<path d="M0 0h24v24H0z" fill="none" />
-							<path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-						</svg>
-					</button>
-					<div className="yearpicker-title">2023</div>
-					<button className="yearpicker-next">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							height="18px"
-							viewBox="0 0 24 24"
-							width="18px"
-							fill="var(--white4)"
-						>
-							<path d="M0 0h24v24H0z" fill="none" />
-							<path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-						</svg>
-					</button>
-				</div>
-				<div className="monthpicker">
-					<div className="monthpicker__month" data-dp-month={0}>
-						January
+				<div className="datepicker__body">
+					<div className="datepicker__body--header">
+						{WEEKDAYS_NARROW.map((weekday, i) => (
+							<div
+								key={`dp-weekday-${i}`}
+								className="datepicker__body--header-cell"
+							>
+								{weekday}
+							</div>
+						))}
 					</div>
-					<div className="monthpicker__month" data-dp-month={1}>
-						February
-					</div>
-					<div className="monthpicker__month" data-dp-month={2}>
-						March
-					</div>
-					<div className="monthpicker__month" data-dp-month={3}>
-						April
-					</div>
-					<div className="monthpicker__month" data-dp-month={4}>
-						May
-					</div>
-					<div className="monthpicker__month" data-dp-month={5}>
-						June
-					</div>
-					<div className="monthpicker__month" data-dp-month={6}>
-						July
-					</div>
-					<div className="monthpicker__month" data-dp-month={7}>
-						August
-					</div>
-					<div className="monthpicker__month" data-dp-month={8}>
-						September
-					</div>
-					<div className="monthpicker__month" data-dp-month={9}>
-						October
-					</div>
-					<div className="monthpicker__month" data-dp-month={10}>
-						November
-					</div>
-					<div className="monthpicker__month" data-dp-month={11}>
-						December
+					<div className="datepicker__body--dates">
+						{cells.map((day) => (
+							<div
+								key={toDateKey(day)}
+								className="datepicker__body--dates-cell"
+							>
+								<div
+									className={setDatenameClassName(day)}
+									onClick={() => onDayClick(day)}
+									data-datepicker-date={toDateKey(day)}
+									style={{ cursor: 'pointer' }}
+								>
+									{day.getDate()}
+								</div>
+							</div>
+						))}
 					</div>
 				</div>
 			</aside>
-		</aside>
+			<aside
+				className="datepicker-overlay"
+				onClick={onClose}
+				style={{ position: 'fixed', inset: 0 }}
+			/>
+		</>
 	);
 }
 
