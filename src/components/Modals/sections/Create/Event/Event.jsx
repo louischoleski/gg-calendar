@@ -253,7 +253,7 @@ const CreateEvent = ({
 							left: `${position.left}px`,
 							width: `${position.width}px`,
 						} :
-						{ top: '80px', left: 0, right: 0, margin: '0 auto', maxWidth: '450px' }),
+						{ top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }),
 					opacity: isDragging ? 0.8 : 1,
 					userSelect: isDragging ? 'none' : 'auto',
 				}}
