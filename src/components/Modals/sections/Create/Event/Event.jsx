@@ -94,8 +94,12 @@ const CreateEvent = ({
 		let [ prevX, prevY ] = [ e.clientX, e.clientY ];
 		let [ left, top ] = [ rect.left, rect.top ];
 
+		// Lock the current width: with only `left` set, the absolutely
+		// positioned form would otherwise collapse to shrink-to-fit.
+		const width = rect.width;
+
 		setIsDragging(true);
-		setPosition({ top, left });
+		setPosition({ top, left, width });
 
 		const handleMove = (ev) => {
 			left = Math.min(
@@ -109,7 +113,7 @@ const CreateEvent = ({
 
 			[ prevX, prevY ] = [ ev.clientX, ev.clientY ];
 
-			setPosition({ top, left });
+			setPosition({ top, left, width });
 		};
 
 		const handleUp = () => {
@@ -175,8 +179,13 @@ const CreateEvent = ({
 				className="entries__form"
 				style={{
 					...(position ?
-						{ top: `${position.top}px`, left: `${position.left}px`, margin: 0 } :
-						{ top: '80px', left: 0, right: 0, margin: '0 auto' }),
+						{
+							margin: 0,
+							top: `${position.top}px`,
+							left: `${position.left}px`,
+							width: `${position.width}px`,
+						} :
+						{ top: '80px', left: 0, right: 0, margin: '0 auto', maxWidth: '450px' }),
 					opacity: isDragging ? 0.8 : 1,
 					userSelect: isDragging ? 'none' : 'auto',
 				}}
