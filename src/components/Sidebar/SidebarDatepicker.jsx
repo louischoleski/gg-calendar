@@ -74,17 +74,32 @@ const SidebarDatepicker = () => {
 		return [ start, end ];
 	}, [ selectedYear, selectedMonth, selectedDay ]);
 
-	const setDatenameClassName = (day) => ([
-		'sbdatepicker__body--datename',
-		day.getMonth() !== displayed.month ? 'sbdatepicker__body--datename-disabled' : null,
-		isToday(day) ? 'sbdatepicker__body--datename-today' : null,
-		(
+	// One state class at a time (like the original): today beats
+	// selected beats disabled beats has-entries — so toggling a
+	// category never restyles the today/selected circles.
+	const setDatenameClassName = (day) => {
+		if (isToday(day)) {
+			return 'sbdatepicker__body--datename sbdatepicker__body--datename-today';
+		}
+
+		if (
 			day.getDate() === selectedDay &&
 			day.getMonth() === selectedMonth &&
 			day.getFullYear() === selectedYear
-		) ? 'sbdatepicker__body--datename-selected' : null,
-		entriesByKey[toDateKey(day)] ? 'sbdatepicker__body--datename-entries' : null,
-	].filter(Boolean).join(' '));
+		) {
+			return 'sbdatepicker__body--datename sbdatepicker__body--datename-selected';
+		}
+
+		if (day.getMonth() !== displayed.month) {
+			return 'sbdatepicker__body--datename sbdatepicker__body--datename-disabled';
+		}
+
+		if (entriesByKey[toDateKey(day)]) {
+			return 'sbdatepicker__body--datename sbdatepicker__body--datename-entries';
+		}
+
+		return 'sbdatepicker__body--datename';
+	};
 
 	return (
 		<div className="datepicker-sidebar">

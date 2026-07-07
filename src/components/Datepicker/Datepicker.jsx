@@ -75,11 +75,10 @@ const Datepicker = ({
 		));
 	}, [ displayed ]);
 
+	// One state class at a time: today beats selected beats disabled
+	// beats has-entries (today keeps its circle even in an adjacent
+	// month's cells, like Google).
 	const setDatenameClassName = (day) => {
-		if (day.getMonth() !== displayed.month) {
-			return 'datepicker__body--datename datepicker__body--datename-disabled';
-		}
-
 		if (isToday(day)) {
 			return 'datepicker__body--datename datepicker__body--datename-today';
 		}
@@ -90,6 +89,10 @@ const Datepicker = ({
 			day.getFullYear() === selectedYear
 		) {
 			return 'datepicker__body--datename datepicker__body--datename-selected';
+		}
+
+		if (day.getMonth() !== displayed.month) {
+			return 'datepicker__body--datename datepicker__body--datename-disabled';
 		}
 
 		if (entriesByKey[toDateKey(day)]) {
