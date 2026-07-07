@@ -2,8 +2,10 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { calcTime } from '@utils/time';
+import { Draggable } from '@components';
 import { setModal } from '@store/actions/app';
 import { MODAL_SECTIONS } from '@constants/modals';
+import { updateEntry } from '@store/actions/entries';
 import { quarterToDate, QUARTER_HEIGHT, QUARTERS_PER_DAY } from '@utils/entries';
 
 import { setWeekCellStyle } from './WeekCell.controller';
@@ -18,12 +20,18 @@ const WeekCell = ({
 	const dispatch = useDispatch();
 
 	const onBoxClick = (e, id) => {
-		e.stopPropagation();
-
 		dispatch(setModal(MODAL_SECTIONS.ENTRY_OPTIONS, {
 			id,
 			x: e.clientX,
 			y: e.clientY,
+		}));
+	};
+
+	// Persist new start/end times after a vertical drag or resize.
+	const onBoxCommit = (id, { y, h }) => {
+		dispatch(updateEntry(id, {
+			start: quarterToDate(date, y).toISOString(),
+			end: quarterToDate(date, y + h).toISOString(),
 		}));
 	};
 
@@ -52,35 +60,39 @@ const WeekCell = ({
 			onClick={onColumnClick}
 		>
 			{data.map(({ id, category, title, coordinates }, rowIdx) => (
-				<div
+				<Draggable.Element
 					key={id}
-					className="box"
-					box-idx={rowIdx}
-					data-box-id={id}
-					data-box-col={colIdx}
-					data-box-category={category}
-					data-end-time={coordinates.e}
-					data-start-time={coordinates.y}
-					data-time-intervals={coordinates.h}
+					y={coordinates.y}
+					h={coordinates.h}
 					onClick={(e) => onBoxClick(e, id)}
-					style={setWeekCellStyle(
-						coordinates,
-						categoryColors[category] || 'rgb(44, 82, 186)',
-						layout[id]
-					)}
+					onCommit={(pos) => onBoxCommit(id, pos)}
 				>
-					<div className="box__header">
-						<div className="box-title">
-							{title}
+					<div
+						className="box"
+						box-idx={rowIdx}
+						data-box-id={id}
+						data-box-col={colIdx}
+						data-box-category={category}
+						data-end-time={coordinates.e}
+						data-start-time={coordinates.y}
+						data-time-intervals={coordinates.h}
+						style={setWeekCellStyle(
+							categoryColors[category] || 'rgb(44, 82, 186)',
+							layout[id]
+						)}
+					>
+						<div className="box__header">
+							<div className="box-title">
+								{title}
+							</div>
+						</div>
+						<div className="box__content">
+							<span className="box-time">
+								{calcTime(coordinates.y, +coordinates.h)}
+							</span>
 						</div>
 					</div>
-					<div className="box__content">
-						<span className="box-time">
-							{calcTime(coordinates.y, +coordinates.h)}
-						</span>
-					</div>
-					<div className="box-resize-s" />
-				</div>
+				</Draggable.Element>
 			))}
 		</div>
 	);

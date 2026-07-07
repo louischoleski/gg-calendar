@@ -46,6 +46,7 @@ const Element = ({
 			if (!session.moved && Math.abs(ev.pageY - session.pageY) > 3) {
 				session.moved = true;
 				setMode(session.mode);
+				document.body.style.cursor = session.mode === 'move' ? 'move' : 'row-resize';
 			}
 
 			if (!session.moved) return;
@@ -73,6 +74,7 @@ const Element = ({
 			document.removeEventListener('mousemove', handleMove);
 			document.removeEventListener('mouseup', handleUp);
 
+			document.body.style.cursor = '';
 			setMode(null);
 
 			if (!session.moved) {
@@ -95,7 +97,25 @@ const Element = ({
 		document.addEventListener('mouseup', handleUp);
 	};
 
-	return React.cloneElement(children, {
+	// Faded placeholder left at the original slot while dragging
+	// (like the original's temporary box).
+	const ghostElement = React.cloneElement(children, {
+		className: [ children.props.className, 'dv-box' ].join(' '),
+		style: {
+			top: '0px',
+			left: '0px',
+			position: 'absolute',
+			width: 'calc((100% - 4px) * 1)',
+			...children.props.style,
+			opacity: 0.5,
+			pointerEvents: 'none',
+			minHeight: `${QUARTER_HEIGHT}px`,
+			height: `${h * QUARTER_HEIGHT}px`,
+			transform: `translateY(${y * QUARTER_HEIGHT}px)`,
+		},
+	});
+
+	const mainElement = React.cloneElement(children, {
 		onMouseDown: (e) => beginSession(e, 'move'),
 		className: [
 			children.props.className, 'dv-box',
@@ -111,7 +131,7 @@ const Element = ({
 			minHeight: `${QUARTER_HEIGHT}px`,
 			height: `${pos.h * QUARTER_HEIGHT}px`,
 			transform: `translateY(${pos.y * QUARTER_HEIGHT}px)`,
-			cursor: mode === 'resize' ? 'row-resize' : 'pointer',
+			cursor: mode === 'move' ? 'move' : (mode === 'resize' ? 'row-resize' : 'pointer'),
 			zIndex: mode ? 100 : (children.props.style?.zIndex ?? 1),
 		},
 		children: [
@@ -133,6 +153,13 @@ const Element = ({
 			/>
 		],
 	});
+
+	return (
+		<>
+			{mode === 'move' ? ghostElement : null}
+			{mainElement}
+		</>
+	);
 };
 
 export default Element;
