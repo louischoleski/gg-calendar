@@ -48,11 +48,14 @@ const Category = () => {
 				className="sb__categories--header"
 				style={{ backgroundColor: "var(--black1)" }}
 			>
-				<div className="sbch-col__one" onClick={toggleShowCategory}>
+				<div
+					onClick={toggleShowCategory}
+					className="sbch-col__one"
+					style={{ cursor: 'pointer' }}
+				>
 					<div className="sbch-title">
-						Techs
+						My Calendars
 					</div>
-					{/*
 					<div className={setCategoryCaret(isCategoryCollapsed)}>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +66,6 @@ const Category = () => {
 							<path d="m12 15.375-6-6 1.4-1.4 4.6 4.6 4.6-4.6 1.4 1.4Z" />
 						</svg>
 					</div>
-					*/}
 				</div>
 				<div
 					className="sbch-plus"
