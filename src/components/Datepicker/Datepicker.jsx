@@ -4,8 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { isToday } from '@utils/dates';
 import { setDate } from '@store/actions/app';
 import { CALENDAR_LABELS } from '@constants/calendar';
+import { selectEntries } from '@store/selectors/entries';
 import { toDateKey, getEntriesByDateKey } from '@utils/entries';
-import { selectActiveEntries } from '@store/selectors/entries';
 import { selectDate, selectModalData } from '@store/selectors/app';
 
 // Header datepicker opens Sunday-first (like the original).
@@ -25,7 +25,10 @@ const Datepicker = ({
 	const dispatch = useDispatch();
 
 	const modalData = useSelector(selectModalData);
-	const activeEntries = useSelector(selectActiveEntries);
+
+	// All entries (not just checked categories): the picker's
+	// presentation stays identical when calendars are toggled.
+	const allEntries = useSelector(selectEntries);
 
 	const {
 		day: selectedDay,
@@ -60,8 +63,8 @@ const Datepicker = ({
 	};
 
 	const entriesByKey = React.useMemo(() => (
-		getEntriesByDateKey(activeEntries)
-	), [ activeEntries ]);
+		getEntriesByDateKey(allEntries)
+	), [ allEntries ]);
 
 	// Sunday-first grid covering the displayed month.
 	const cells = React.useMemo(() => {

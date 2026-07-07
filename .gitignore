@@ -32,3 +32,6 @@ dist-ssr
 # testing
 /coverage
 __snapshots__/
+
+# Claude Code worktrees
+.claude/worktrees/

@@ -4,8 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { isToday } from '@utils/dates';
 import { setDate } from '@store/actions/app';
 import { selectDate } from '@store/selectors/app';
+import { selectEntries } from '@store/selectors/entries';
 import { toDateKey, getEntriesByDateKey } from '@utils/entries';
-import { selectActiveEntries } from '@store/selectors/entries';
 import { CALENDAR_LABELS, WEEK_START, TOTAL_DAY_WEEK } from '@constants/calendar';
 
 const DATEPICKER_WEEK_LABELS = [ 'M', 'T', 'W', 'T', 'F', 'S', 'S' ];
@@ -19,7 +19,9 @@ const SidebarDatepicker = () => {
 		month: selectedMonth,
 	} = useSelector(selectDate);
 
-	const activeEntries = useSelector(selectActiveEntries);
+	// All entries (not just checked categories): the mini calendar
+	// presentation stays identical when calendars are toggled.
+	const allEntries = useSelector(selectEntries);
 
 	// Month currently displayed by the picker (navigates independently).
 	const [ displayed, setDisplayed ] = React.useState({
@@ -47,8 +49,8 @@ const SidebarDatepicker = () => {
 	};
 
 	const entriesByKey = React.useMemo(() => (
-		getEntriesByDateKey(activeEntries)
-	), [ activeEntries ]);
+		getEntriesByDateKey(allEntries)
+	), [ allEntries ]);
 
 	// Monday-first grid covering the displayed month.
 	const cells = React.useMemo(() => {
