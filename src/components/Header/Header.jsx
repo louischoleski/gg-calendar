@@ -167,7 +167,7 @@ const Header = ({
 						</svg>
 					</div>
 					<h3 className="header-title">
-						Calendar
+						{CALENDAR_LABELS.MONTH.LONG[month]}
 					</h3>
 					<button
 						className="btn-root btn-today"
