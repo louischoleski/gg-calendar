@@ -39,6 +39,14 @@ const pickAppSettings = (app = {}) => {
 	if (typeof app.shortcut === 'boolean') settings.shortcut = app.shortcut;
 	if (typeof app.animation === 'boolean') settings.animation = app.animation;
 
+	if (app.selected && [ 'year', 'month', 'day' ].every((k) => app.selected[k] !== undefined)) {
+		settings.selected = {
+			year: String(app.selected.year),
+			month: String(app.selected.month),
+			day: String(app.selected.day),
+		};
+	}
+
 	return settings;
 };
 
@@ -53,6 +61,7 @@ export const buildBackup = (app = {}, items = []) => ({
 		theme: app.theme,
 		shortcut: app.shortcut,
 		animation: app.animation,
+		selected: app.selected,
 		collapsed: app.collapsed,
 		categories: app.categories,
 	},
@@ -107,6 +116,9 @@ export const parseBackup = (raw = '') => {
 			}
 
 			// Map the vanilla top-level settings we understand.
+			const hasSelected = [ data.yearSelected, data.monthSelected, data.daySelected ]
+				.every((v) => v !== undefined);
+
 			const appSettings = pickAppSettings({
 				view: (data.component || '').toUpperCase(),
 				theme: (data.colorScheme || '').toUpperCase(),
@@ -114,6 +126,11 @@ export const parseBackup = (raw = '') => {
 					undefined : String(data.keyboardShortcutsStatus) === 'true',
 				animation: data.animationStatus === undefined ?
 					undefined : String(data.animationStatus) === 'true',
+				selected: hasSelected ? {
+					year: data.yearSelected,
+					month: data.monthSelected,
+					day: data.daySelected,
+				} : undefined,
 			});
 
 			return {
