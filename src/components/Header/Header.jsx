@@ -26,7 +26,7 @@ const Header = ({
 
 	// Browser tab title reflects the active month.
 	React.useEffect(() => {
-		document.title = `${CALENDAR_LABELS.MONTH.LONG[month]} ${year} — Calendar`;
+		document.title = `${CALENDAR_LABELS.MONTH.LONG[month]} ${year}`;
 	}, [ month, year ]);
 
 	const toggleSidebar = () => dispatch(toggleCollapsed.sidebar());
