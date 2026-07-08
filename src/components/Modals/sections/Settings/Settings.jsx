@@ -2,13 +2,16 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { THEMES } from '@constants/themes';
+import { setEntries } from '@store/actions/entries';
 import { MODAL_SECTIONS } from '@constants/modals';
-import { selectTheme, selectShortcut, selectAnimation } from '@store/selectors/app';
-import { setTheme, setModal, toggleShortcut, toggleAnimation } from '@store/actions/app';
+import { selectEntries } from '@store/selectors/entries';
+import { buildBackup, parseBackup, buildBackupFilename } from '@utils/backup';
+import { selectApp, selectTheme, selectShortcut, selectAnimation } from '@store/selectors/app';
+import { setTheme, setModal, setCategories, appLoading, toggleShortcut, toggleAnimation } from '@store/actions/app';
 
-import { 
-	setShortcutFill, 
-	setShortcutDataTooltip, 
+import {
+	setShortcutFill,
+	setShortcutDataTooltip,
 	setAnimationDataTooltip,
 } from './Settings.controller';
 
@@ -17,9 +20,65 @@ const Settings = ({
 }) => {
 	const dispatch = useDispatch();
 
+	const app = useSelector(selectApp);
+	const entries = useSelector(selectEntries);
 	const activeTheme = useSelector(selectTheme);
 	const hasShortcut = useSelector(selectShortcut);
 	const hasAnimation = useSelector(selectAnimation);
+
+	const uploadInputRef = React.useRef(null);
+
+	// Download everything (settings + categories + entries) as JSON.
+	const onDownloadClick = () => {
+		const backup = buildBackup(app, entries);
+
+		const blob = new Blob([ JSON.stringify(backup, null, 2) ], {
+			type: 'application/json',
+		});
+		const href = URL.createObjectURL(blob);
+
+		const link = document.createElement('a');
+		link.href = href;
+		link.download = buildBackupFilename(entries.length, app.categories.length);
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(href);
+	};
+
+	const onUploadClick = () => {
+		uploadInputRef.current?.click();
+	};
+
+	// Uploading overwrites existing data; unsupported files are ignored.
+	const onUploadFile = (e) => {
+		const file = e.target.files?.[0];
+
+		if (!file) return;
+
+		const reader = new FileReader();
+
+		reader.onload = (ev) => {
+			const parsed = parseBackup(ev.target.result);
+
+			if (!parsed) {
+				window.alert('Unsupported file — no data was changed.');
+				return;
+			}
+
+			dispatch(setCategories(parsed.categories));
+			dispatch(setEntries(parsed.entries));
+
+			if (Object.keys(parsed.appSettings).length) {
+				dispatch(appLoading(parsed.appSettings));
+			}
+
+			onClose();
+		};
+
+		reader.readAsText(file);
+		e.target.value = '';
+	};
 
 	const onShortcutsClick = () => {
 		dispatch(setModal(MODAL_SECTIONS.SHORTCUTS));
@@ -123,7 +182,7 @@ const Settings = ({
 							</div>
 							<div className="sub-menu--item__actions">
 								<div className="sm-download-json">
-									<div className="sm-json-btn down-json">
+									<div className="sm-json-btn down-json" onClick={onDownloadClick}>
 										<div className="sm-download-json-icon">
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
@@ -136,7 +195,14 @@ const Settings = ({
 										</div>
 										<div className="sm-download-json-title">download.json</div>
 									</div>
-									<div className="sm-json-btn upload-json">
+									<input
+									type="file"
+									accept="application/json"
+									ref={uploadInputRef}
+									onChange={onUploadFile}
+									style={{ display: 'none' }}
+								/>
+								<div className="sm-json-btn upload-json" onClick={onUploadClick}>
 										<div className="sm-upload-json-icon">
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
