@@ -1,7 +1,8 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { THEMES } from '@constants/themes';
+import { THEMES, THEME_CLASSNAMES } from '@constants/themes';
 import { setEntries } from '@store/actions/entries';
 import { MODAL_SECTIONS } from '@constants/modals';
 import { selectEntries } from '@store/selectors/entries';
@@ -28,6 +29,8 @@ const Settings = ({
 
 	const uploadInputRef = React.useRef(null);
 
+	const [ confirmUpload, setConfirmUpload ] = React.useState(false);
+
 	// Download everything (settings + categories + entries) as JSON.
 	const onDownloadClick = () => {
 		const backup = buildBackup(app, entries);
@@ -46,7 +49,13 @@ const Settings = ({
 		URL.revokeObjectURL(href);
 	};
 
+	// Warn before overwriting existing data, then open the picker.
 	const onUploadClick = () => {
+		setConfirmUpload(true);
+	};
+
+	const onUploadProceed = () => {
+		setConfirmUpload(false);
 		uploadInputRef.current?.click();
 	};
 
@@ -98,6 +107,45 @@ const Settings = ({
 
 	return (
 		<>
+			{confirmUpload ? ReactDOM.createPortal(
+				<div className={THEME_CLASSNAMES[activeTheme || THEMES.DARK]}>
+					<div
+						onClick={() => setConfirmUpload(false)}
+						className="sidebar-sub-menu__overlay sub-overlay-vis"
+						style={{ position: 'fixed', inset: 0, zIndex: 1999 }}
+					/>
+					<div
+						className="sb-sub-popup-confirm"
+						style={{ position: 'fixed', zIndex: 2000 }}
+					>
+						<div className="sb-sub-popup-subtitle">
+							Overwriting {entries.length} {entries.length === 1 ? 'entry' : 'entries'}.
+						</div>
+						<div className="sb-sub-popup-subtitle">
+							This action is irreversible.
+						</div>
+						<div className="sb-sub-popup-title">
+							Please ensure you have a valid backup before proceeding.
+							Unsupported data will not overwrite anything.
+						</div>
+						<div className="sb-sub-popup-btns">
+							<button
+								className="sb-sub-popup-btn--cancel"
+								onClick={() => setConfirmUpload(false)}
+							>
+								Cancel
+							</button>
+							<button
+								className="sb-sub-popup-btn--proceed"
+								onClick={onUploadProceed}
+							>
+								Proceed
+							</button>
+						</div>
+					</div>
+				</div>,
+				document.body
+			) : null}
 			<aside className="sidebar-sub-menu">
 				<div className="sub-menu__header">
 					<div className="sub-menu--title">
