@@ -4,8 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { isToday } from '@utils/dates';
 import { setDate } from '@store/actions/app';
 import { CALENDAR_LABELS } from '@constants/calendar';
-import { selectEntries } from '@store/selectors/entries';
-import { toDateKey, getEntriesByDateKey } from '@utils/entries';
+import { toDateKey } from '@utils/entries';
 import { selectDate, selectModalData } from '@store/selectors/app';
 
 // Header datepicker opens Sunday-first (like the original).
@@ -25,10 +24,6 @@ const Datepicker = ({
 	const dispatch = useDispatch();
 
 	const modalData = useSelector(selectModalData);
-
-	// All entries (not just checked categories): the picker's
-	// presentation stays identical when calendars are toggled.
-	const allEntries = useSelector(selectEntries);
 
 	const {
 		day: selectedDay,
@@ -62,10 +57,6 @@ const Datepicker = ({
 		onClose();
 	};
 
-	const entriesByKey = React.useMemo(() => (
-		getEntriesByDateKey(allEntries)
-	), [ allEntries ]);
-
 	// Sunday-first grid covering the displayed month.
 	const cells = React.useMemo(() => {
 		const first = new Date(displayed.year, displayed.month, 1);
@@ -78,9 +69,9 @@ const Datepicker = ({
 		));
 	}, [ displayed ]);
 
-	// One state class at a time: today beats selected beats disabled
-	// beats has-entries (today keeps its circle even in an adjacent
-	// month's cells, like Google).
+	// One state class at a time, pure Google look: only today,
+	// selected, and other-month days get styling (no event markers;
+	// today keeps its circle even in an adjacent month's cells).
 	const setDatenameClassName = (day) => {
 		if (isToday(day)) {
 			return 'datepicker__body--datename datepicker__body--datename-today';
@@ -96,10 +87,6 @@ const Datepicker = ({
 
 		if (day.getMonth() !== displayed.month) {
 			return 'datepicker__body--datename datepicker__body--datename-disabled';
-		}
-
-		if (entriesByKey[toDateKey(day)]) {
-			return 'datepicker__body--datename datepicker__body--datename-entries';
 		}
 
 		return 'datepicker__body--datename';

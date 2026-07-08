@@ -4,8 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { isToday } from '@utils/dates';
 import { setDate } from '@store/actions/app';
 import { selectDate } from '@store/selectors/app';
-import { selectEntries } from '@store/selectors/entries';
-import { toDateKey, getEntriesByDateKey } from '@utils/entries';
+import { toDateKey } from '@utils/entries';
 import { CALENDAR_LABELS, WEEK_START, TOTAL_DAY_WEEK } from '@constants/calendar';
 
 const DATEPICKER_WEEK_LABELS = [ 'M', 'T', 'W', 'T', 'F', 'S', 'S' ];
@@ -19,9 +18,6 @@ const SidebarDatepicker = () => {
 		month: selectedMonth,
 	} = useSelector(selectDate);
 
-	// All entries (not just checked categories): the mini calendar
-	// presentation stays identical when calendars are toggled.
-	const allEntries = useSelector(selectEntries);
 
 	// Month currently displayed by the picker (navigates independently).
 	const [ displayed, setDisplayed ] = React.useState({
@@ -48,10 +44,6 @@ const SidebarDatepicker = () => {
 		dispatch(setDate(day.getFullYear(), day.getMonth(), day.getDate()));
 	};
 
-	const entriesByKey = React.useMemo(() => (
-		getEntriesByDateKey(allEntries)
-	), [ allEntries ]);
-
 	// Monday-first grid covering the displayed month.
 	const cells = React.useMemo(() => {
 		const first = new Date(displayed.year, displayed.month, 1);
@@ -76,9 +68,8 @@ const SidebarDatepicker = () => {
 		return [ start, end ];
 	}, [ selectedYear, selectedMonth, selectedDay ]);
 
-	// One state class at a time (like the original): today beats
-	// selected beats disabled beats has-entries — so toggling a
-	// category never restyles the today/selected circles.
+	// One state class at a time, pure Google look: only today,
+	// selected, and other-month days get styling (no event markers).
 	const setDatenameClassName = (day) => {
 		if (isToday(day)) {
 			return 'sbdatepicker__body--datename sbdatepicker__body--datename-today';
@@ -94,10 +85,6 @@ const SidebarDatepicker = () => {
 
 		if (day.getMonth() !== displayed.month) {
 			return 'sbdatepicker__body--datename sbdatepicker__body--datename-disabled';
-		}
-
-		if (entriesByKey[toDateKey(day)]) {
-			return 'sbdatepicker__body--datename sbdatepicker__body--datename-entries';
 		}
 
 		return 'sbdatepicker__body--datename';
