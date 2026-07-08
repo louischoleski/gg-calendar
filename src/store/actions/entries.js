@@ -28,3 +28,9 @@ export const deleteEntry = (id) => ({
 	type: actionTypes.ENTRY_DELETED,
 	id
 });
+
+// Entries reference categories by name; follow a category rename.
+export const renameEntriesCategory = (from, to) => ({
+	type: actionTypes.ENTRIES_CATEGORY_RENAMED,
+	from, to
+});

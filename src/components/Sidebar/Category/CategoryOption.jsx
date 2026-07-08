@@ -7,13 +7,14 @@ import {
 } from './Category.controller';
 
 const CategoryOption = ({
-	id = '', 
-	name = '', 
-	color = '', 
-	checked = false, 
+	id = '',
+	name = '',
+	color = '',
+	checked = false,
 	showDelete = false,
-	onClick = () => null, 
+	onClick = () => null,
 	onDeleteClick = () => null,
+	onActionsClick = () => null,
 }) => {
 	const handleClick = () => {
 		onClick(id);
@@ -22,6 +23,11 @@ const CategoryOption = ({
 	const handleDeleteClick = (e) => {
 		e.stopPropagation();
 		onDeleteClick(id);
+	}
+
+	const handleActionsClick = (e) => {
+		e.stopPropagation();
+		onActionsClick(e, id);
 	}
 
 	return (
@@ -69,6 +75,8 @@ const CategoryOption = ({
 				<button
 					data-sbch-color={color}
 					data-sbch-category={name}
+					onClick={handleActionsClick}
+					data-tooltip="category options"
 					className="sbch-col--actions__edit-icon sbch-col--actions__edit-icon--immutable"
 				>
 					<svg height={20} width={20} fill="var(--white3)">

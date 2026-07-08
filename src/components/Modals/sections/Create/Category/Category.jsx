@@ -1,11 +1,12 @@
-import _ from 'lodash';
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
+import uniqueId from '@utils/uinqueId';
 import { MODAL_SECTIONS } from '@constants/modals';
 import { CATEGORY_COLORS } from '@constants/calendar';
-import { selectCategories } from '@store/selectors/app';
-import { setModal, setCategories } from '@store/actions/app';
+import { renameEntriesCategory } from '@store/actions/entries';
+import { selectCategories, selectModalData } from '@store/selectors/app';
+import { setModal, setCategories, updateCategories } from '@store/actions/app';
 
 export const setActiveColorStyle = (color = '') => ({
 	background: color,
@@ -16,68 +17,100 @@ const CreateCategory = ({
 }) => {
 	const dispatch = useDispatch();
 
+	const modalData = useSelector(selectModalData);
 	const categories = useSelector(selectCategories);
 
-	const [ hasError, setHasError ] = React.useState(false);
-	const [ data, setData ] = React.useState({ name: '', color: '#2C52BA', checked: true });
+	// Edit mode when the modal payload carries a category id.
+	const editCategory = React.useMemo(() => (
+		modalData?.id ?
+			categories.find(({ id }) => id === modalData.id) :
+			null
+	), []);
 
-	const onSubmit = (payload = []) => {
-		const clonedCategories = [ ...categories ];
+	const [ error, setError ] = React.useState(null);
+	const [ data, setData ] = React.useState({
+		checked: true,
+		name: editCategory?.name || '',
+		color: editCategory?.color || '#2C52BA',
+	});
 
-		clonedCategories.push({
-			...payload,
-			id: _.uniqueId('category_'), 
-		});
+	const onSubmit = (payload = {}) => {
+		if (editCategory) {
+			const index = categories.findIndex(({ id }) => id === editCategory.id);
 
-		dispatch(setCategories(clonedCategories));
+			dispatch(updateCategories(index, {
+				...editCategory,
+				name: payload.name,
+				color: payload.color,
+			}));
+
+			// Entries reference categories by name; follow the rename.
+			if (payload.name !== editCategory.name) {
+				dispatch(renameEntriesCategory(editCategory.name, payload.name));
+			}
+		} else {
+			dispatch(setCategories([
+				...categories,
+				{ ...payload, id: `category_${uniqueId().toLowerCase()}` },
+			]));
+		}
 
 		dispatch(setModal(MODAL_SECTIONS.CLOSED));
 	}
 
 	const validate = (payload = {}) => {
-		const errs = {};
+		const name = (payload?.name || '').trim();
 
-		if (!payload?.name || !payload?.name.length) {
-			errs.name = 'Category name is required';
+		if (!name.length) {
+			return 'Category name is required';
 		}
 
-		return errs;
+		const clash = categories.find((category) => (
+			category.name === name && category.id !== editCategory?.id
+		));
+
+		if (clash) {
+			return 'Category already exists';
+		}
+
+		return null;
 	}
 
-	const handleChange = (e) => setData({
-		...data, [e.target.name]: e.target.value
-	});
+	const handleChange = (e) => {
+		setError(null);
+		setData({ ...data, [e.target.name]: e.target.value });
+	};
 
 	const handleColor = (color) => setData({
 		...data, color,
 	});
 
 	const handleClearError = () => {
-		setHasError(false);
+		setError(null);
 	};
 
 	const handleSubmit = () => {
-		const errs = validate(data);
+		const err = validate(data);
 
-		if (Object.keys(errs || {}).length) {
-			setHasError(true);
+		if (err) {
+			setError(err);
 			return;
 		}
 
-		onSubmit(data);
+		onSubmit({ ...data, name: data.name.trim() });
 	}
 
 	return (
 		<>
 			<aside className="category__form" style={{ left: "211px", top: "314px" }}>
 				<div className="category__form--body">
-					{hasError ? (
+					{error ? (
 						<div className="ctg-input--err" onClick={handleClearError}>
-							Category name is required
+							{error}
 						</div>
 					) : null}
 					<input
-						placeholder="Create new category"
+						placeholder={editCategory ? 'Edit category' : 'Create new category'}
 						className="category__form-input"
 						onChange={handleChange}
 						value={data?.name}

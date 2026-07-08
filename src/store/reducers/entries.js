@@ -22,6 +22,15 @@ const entriesReducer = (state = entriesState, action) => {
 				...state,
 				items: state.items.filter((item) => item.id !== action.id),
 			};
+		case actionTypes.ENTRIES_CATEGORY_RENAMED:
+			return {
+				...state,
+				items: state.items.map((item) => (
+					item.category === action.from ?
+						{ ...item, category: action.to } :
+						item
+				)),
+			};
 		default:
 			return state;
 	}

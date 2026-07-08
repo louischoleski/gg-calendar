@@ -6,6 +6,7 @@ import { selectCollapsed, selectCategories } from '@store/selectors/app';
 import { setModal, toggleCollapsed, setCategories, updateCategories } from '@store/actions/app';
 
 import CategoryOption from './CategoryOption';
+import CategoryActionMenu from './CategoryActionMenu';
 import { setCategoryCaret } from './Category.controller';
 
 const Category = () => {
@@ -13,6 +14,9 @@ const Category = () => {
 
 	const categories = useSelector(selectCategories);
 	const { category: isCategoryCollapsed } = useSelector(selectCollapsed);
+
+	// Open kebab menu: { id, x, y } | null
+	const [ actionMenu, setActionMenu ] = React.useState(null);
 
 	const toggleShowCategory = () => {
 		dispatch(toggleCollapsed.category());
@@ -40,6 +44,23 @@ const Category = () => {
 		dispatch(setCategories(
 			categories.filter(({ id }) => id !== categoryId)
 		));
+	}
+
+	// Anchor like the original placePopup call: the pointer's x,
+	// 8px above the kebab button's top.
+	const onCategoryActionsClick = (e, categoryId) => {
+		const rect = e.currentTarget.getBoundingClientRect();
+
+		setActionMenu({
+			id: categoryId,
+			x: e.clientX || rect.left,
+			y: rect.top - 8,
+		});
+	}
+
+	// Kebab "Edit" opens the category form prefilled for this category.
+	const onCategoryEdit = (categoryId) => {
+		dispatch(setModal(MODAL_SECTIONS.CREATE_CATEGORY, { id: categoryId }));
 	}
 
 	return (
@@ -90,6 +111,7 @@ const Category = () => {
 						categories.map(({ id, ...rest }, categoryIdx) => (
 							<CategoryOption
 								onDeleteClick={onCategoryDelete}
+								onActionsClick={onCategoryActionsClick}
 								showDelete={categoryIdx != 0}
 								onClick={onCategoryClick}
 								key={id} id={id}
@@ -99,6 +121,14 @@ const Category = () => {
 					) : null}
 				</div>
 			</div>
+			{actionMenu ? (
+				<CategoryActionMenu
+					onEdit={onCategoryEdit}
+					categoryId={actionMenu.id}
+					onClose={() => setActionMenu(null)}
+					position={{ x: actionMenu.x, y: actionMenu.y }}
+				/>
+			) : null}
 		</div>
 	);
 }
