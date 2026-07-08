@@ -14,12 +14,9 @@ export default ({ mode }) => {
 		resolve: {
 			alias: {
 				'@app': path.resolve(__dirname, 'src/App'),
-				'@api': path.resolve(__dirname, 'src/api'),
 				'@store': path.resolve(__dirname, 'src/store'),
 				'@utils': path.resolve(__dirname, 'src/utils'),
 				'@utils/*': path.resolve(__dirname, 'src/utils'),
-				'@config': path.resolve(__dirname, 'config'),
-				'@config/*': path.resolve(__dirname, 'config'),
 				'@static/*': path.resolve(__dirname, 'src/static'),
 				'@static/images/*': path.resolve(__dirname, 'src/static/images'),
 				'@locales': path.resolve(__dirname, 'src/locales'),

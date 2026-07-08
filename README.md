@@ -96,19 +96,6 @@ Two ideas carry most of the weight:
   grid. The week and day cells wrap their events in it; the month view has its
   own cell-to-cell variant.
 
-## Configuration
-
-Environment variables follow Vite's convention:
-
-```bash
-.env                 # loaded in all cases
-.env.local           # loaded in all cases, git-ignored
-.env.[mode]          # loaded for the given mode
-.env.[mode].local    # loaded for the given mode, git-ignored
-```
-
-A `.env.sample` is included as a starting point.
-
 ## Acknowledgement
 
 The behaviour and much of the styling trace back to Chase Ottofy's

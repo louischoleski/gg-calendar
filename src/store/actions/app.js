@@ -1,5 +1,3 @@
-import api from '@api';
-
 import * as actionTypes from '../types';
 
 export const appLoading = app => ({
