@@ -1,0 +1,241 @@
+{
+	"meta.title.text": "Tigado - Débloquez des fonctionnalités de niveau entreprise pour votre entreprise de services",
+	"meta.description.text": "Tigado, débloquez des fonctionnalités de niveau entreprise pour votre entreprise de services à un prix de petite entreprise et gérez-la de n'importe où !",
+	"page.home.brand.text": "tigado",
+
+	"success.CODE_SENT.text": "Veuillez vérifier votre boîte de réception, nous venons d'envoyer un lien de code de réinitialisation à l'adresse e-mail associée à votre compte.",
+
+	"error.EMAIL-TAKEN.text": "Adresse e-mail déjà utilisée",
+	"error.ACCOUNT_NOT_CREATED.text": "Adresse e-mail déjà utilisée",
+	"error.ACCOUNT_BLOCKED.text": "Adresse IP temporairement bloquée",
+	"error.NOT-PERMITTED.text": "Inscription d'utilisateur désactivée",
+	"error.SERVER_ERROR.text": "Désolé, nous ne sommes pas en mesure de traiter votre demande. Veuillez réessayer plus tard.",
+	"error.AUTH_FAILED.text": "La combinaison e-mail et mot de passe ne correspond à aucun compte existant",
+	"error.ACCOUNT_NOT_CREATED.text": "Désolé, nous ne sommes pas en mesure de traiter votre demande. Veuillez réessayer plus tard.",
+
+	"meta.signin.title.text": "Tigado - Connexion",
+	"page.signin.header.text": "Connexion",
+	"page.signin.paragraph.text": "Accédez à votre compte",
+	"page.signin.label.or.text": "OU",
+	"page.signin.label.email.text": "Votre e-mail",
+	"page.signin.form.email.text": "email@adresse.com",
+	"page.signin.label.password.text": "Mot de passe",
+	"page.signin.form.password.text": "8 caractères minimum requis",
+	"page.signin.form.remember.text": "Se souvenir de moi",
+	"page.signin.form.link.forgot.text": "Mot de passe oublié?",
+	"page.signin.no-account.text": "Vous n'avez pas encore de compte?",
+	"page.signin.form.btn.signin.text": "Se connecter",
+	"page.signin.form.btn.signin-google.text": "Se connecter avec Google",
+	"page.signin.form.link.signup.text": "Inscrivez-vous ici",
+
+	"meta.signup.title.text": "Tigado - S'inscrire",
+	"page.signup.header.text": "Créez votre compte",
+	"page.signup.label.password.text": "Mot de passe",
+	"page.signup.label.password-confirm.text": "Confirmer le mot de passe",
+	"page.signup.label.email.text": "Votre e-mail",
+	"page.signup.form.full-name.text": "Nom complet",
+	"page.signup.form.first-name.text": "Prénom",
+	"page.signup.form.last-name.text": "Nom de famille",
+	"page.signup.label.or.text": "OU",
+	"page.signup.form.email.text": "E-mail",
+	"page.signup.form.password.text": "Mot de passe",
+	"page.signup.form.btn.signup-google.text": "S'inscrire avec Google",
+	"page.signup.form.repeat-password.text": "Répéter le mot de passe",
+	"page.signup.has-account.text": "Vous avez déjà un compte?",
+	"page.signup.form.btn.signup.text": "S'inscrire",
+	"page.signup.form.link.signin.text": "Connectez-vous ici",
+	"page.signup.link.terms.text": "Conditions",
+	"page.signup.link.privacy.text": "Politique de confidentialité",
+	"page.signup.form.terms-privacy.text": "En cliquant sur \"S'inscrire\", vous acceptez les {terms} et reconnaissez la {privacy}",
+
+	"meta.not-found.title.text": "Tigado - Non trouvé",
+	"page.not-found.header.text": "404",
+	"page.not-found.description.text": "Désolé, la page que vous recherchez est introuvable",
+	"page.not-found.btn.text": "Retour à l'application",
+
+	"meta.forgot_password.title.text": "Tigado - Récupération",
+	"page.forgot_password.header.text": "Mot de passe oublié?",
+	"page.forgot_password.label.email.text": "Votre e-mail",
+	"page.forgot_password.paragraph.text": "Entrez l'adresse e-mail que vous avez utilisée lors de votre inscription et nous vous enverrons des instructions pour réinitialiser votre mot de passe.",
+	"page.forgot_password.form.email.text": "Entrez votre adresse e-mail",
+	"page.forgot_password.form.btn.recover.text": "Envoyer un e-mail",
+	"page.forgot_password.has-account.text": "Retour à la connexion",
+
+	"page.service.header.text": "Créez des produits numériques avec :",
+	"page.feature.one.header.text": "Outil tout-en-un",
+	"page.feature.one.description.text": "Concevez, exécutez et développez vos applications de bout en bout",
+	"page.feature.two.header.text": "Ajoutez et gérez facilement vos services",
+	"page.feature.two.description.text": "Il regroupe vos tâches, projets, échéances, fichiers et plus encore",
+
+	"form.validation.empty.error.text": "Ne peut pas être vide",
+	"form.validation.first-name.error.text": "Veuillez saisir un prénom valide",
+	"form.validation.last-name.error.text": "Veuillez saisir un nom de famille valide",
+	"form.validation.email.error.text": "Veuillez saisir un e-mail valide",
+	"form.validation.password.error.text": "Veuillez saisir un mot de passe valide de 8 caractères",
+	"form.validation.password-confirm.error.text": "Les mots de passe ne correspondent pas",
+	"form.validation.password-same.error.text": "Les nouveaux mots de passe ne peuvent pas être identiques aux précédents",
+
+	"nav.account.sign-out.text": "Déconnexion",
+	"nav.account.settings.text": "Paramètres",
+	"nav.account.access-logs.text": "Journaux d'accès",
+	"nav.account.organizations.text": "Organisations",
+
+	"nav.dashboard.text": "Tableau de bord",
+
+	"nav.hr.text": "Administration",
+	"nav.hr.system.text": "Système",
+	"nav.hr.system.access.text": "Accès",
+	"nav.hr.system.templates.text": "Modèles",
+	"nav.hr.system.payments.text": "Paiements",
+	"nav.hr.system.configuration.text": "Configuration",
+
+	"nav.hr.system.reward.text": "Programmes de récompenses",
+	"nav.hr.system.crew.text": "Gestion d'équipage",
+	"nav.hr.system.company.text": "Informations sur l'entreprise",
+	"nav.hr.system.meetings.text": "Réunions",
+	"nav.hr.system.contracts.text": "Contrats",
+	"nav.hr.system.goals.text": "Gestion des objectifs",
+	"nav.hr.system.system.text": "Recommandations du système",
+
+
+	"nav.hr.employee.text": "Employé",
+	"nav.hr.employee.problem.text": "Problèmes",
+	"nav.hr.employee.hiring.text": "Recrutement",
+	"nav.hr.employee.vacations.text": "Congés",
+	"nav.hr.employee.management.text": "Gestion des effectifs",
+
+
+	"nav.hr.legal.text": "Légal",
+	"nav.hr.legal.parking.text": "Contraventions de stationnement",
+
+
+	"nav.crm.text": "CRM",
+	"nav.crm.compagnies.text": "Liste des entreprises",
+	"nav.crm.customers.text": "Clients",
+	"nav.crm.jobs.text": "Emplois",
+
+
+	"nav.inventory.text": "Inventaire",
+	"nav.inventory.fleet.text": "Flotte",
+	"nav.inventory.vendors.text": "Fournisseurs",
+	"nav.inventory.settings.text": "Paramètres d'inventaire",
+	"nav.inventory.product.text": "Catalogue de produits",
+	"nav.inventory.tool.text": "Gestion des outils",
+	"nav.inventory.catalog.text": "Catalogue de services",
+
+
+	"nav.dispatch.text": "Répartition",
+
+
+	"nav.calendar.text": "Calendrier",
+
+
+	"nav.accounting.text": "Comptabilité",
+	"nav.accounting.expenses.text": "Dépenses",
+	"nav.accounting.invoices.text": "Factures",
+	"nav.accounting.forecasting.text": "Prévisions",
+	"nav.accounting.loans.text": "Prêts",
+
+
+	"nav.communication.text": "Communication",
+	"nav.communication.phone.text": "Système téléphonique",
+	"nav.communication.chat.text": "Système de chat interne",
+	"nav.communication.forum.text": "Forum",
+	"nav.communication.task.text": "Tableau de tâches/Chat",
+
+
+	"nav.it.text": "TI",
+	"nav.it.company.text": "Préférences de l'entreprise",
+	"nav.it.tag.text": "Gestion des tags",
+	"nav.it.api.text": "API",
+	"nav.it.language.text": "Paramètres linguistiques",
+	"nav.it.invoice.text": "Paramètres de gestion des factures",
+	"nav.it.recommendations.text": "Recommandations du système",
+
+
+	"nav.rd.text": "R&D",
+	"nav.rd.project.text": "Projets",
+	"nav.rd.database.text": "Base de données",
+	"nav.rd.database.employee.text": "Employé",
+	"nav.rd.database.references.text": "Références",
+	"nav.rd.database.vip.text": "Personnes importantes",
+	"nav.rd.database.association.text": "Association",
+	"nav.rd.database.competitors.text": "Concurrents",
+	"nav.rd.database.postal-code.text": "Code postal",
+	"nav.rd.database.machine.text": "Gestion des machines",
+	"nav.rd.database.job-satus.text": "État des emplois",
+
+
+	"nav.rd.analytics.text": "Analytique",
+	"nav.rd.analytics.project.text": "Éléments de projet",
+
+
+	"nav.rd.feedback.text": "Portail de commentaires des clients",
+	"nav.rd.reports.text": "Rapports",
+
+
+	"nav.marketing.text": "Marketing",
+	"nav.marketing.dashboard.text": "Tableau de bord",
+	"nav.marketing.seo.text": "SEO",
+	"nav.marketing.smo.text": "SMO",
+	"nav.marketing.sem.text": "SEM",
+	"nav.marketing.traditional.text": "Marketing traditionnel",
+	"nav.marketing.reviews.text": "Système de gestion des avis",
+	"nav.marketing.email.text": "Diffusion d'e-mails aux clients",
+	"nav.marketing.goals.text": "Objectifs",
+
+
+	"nav.sub-master.text": "Compte sous-maître",
+
+
+	"nav.settings.text": "Paramètres",
+
+
+	"nav.logout.text": "Déconnexion",
+
+
+	"page.calls.header.text": "Gérer les appels",
+	"page.calls.metrics.total-call.text": "Nombre total d'appels",
+	"page.calls.metrics.total-unique-call.text": "Nombre total d'appels uniques",
+	"page.calls.metrics.total-customer-call.text": "Nombre total d'appels de clients",
+	"page.calls.metrics.inbound-customer-call.text": "Appels entrants des clients",
+	"page.calls.metrics.inbound-technician-call.text": "Appels entrants des techniciens",
+	"page.calls.metrics.outbound-customer-call.text": "Appels sortants des clients",
+	"page.calls.metrics.outbound-technician-call.text": "Appels sortants des techniciens",
+	"page.calls.metrics.no-answer-total-call.text": "Nombre total de non-réponses",
+	"page.calls.metrics.no-answer-percent-call.text": "Pourcentage de non-réponses",
+	"page.calls.metrics.no-answer-customer-call.text": "Non-réponses des clients",
+	"page.calls.metrics.no-answer-technician-call.text": "Non-réponses des techniciens",
+
+
+	"page.calls.tooltips.total-call.text": "(appels entrants des clients + appels sortants des clients) + (appels entrants des techniciens + appels sortants des techniciens) + nombre total de non-réponses",
+	"page.calls.tooltips.total-unique-call.text": "Appels entrants, sortants et non-réponses uniques",
+	"page.calls.tooltips.total-customer-call.text": "(appels entrants des clients + appels sortants des clients)",
+	"page.calls.tooltips.inbound-customer-call.text": "Total des appels entrants des clients",
+	"page.calls.tooltips.inbound-technician-call.text": "Total des appels entrants des techniciens",
+	"page.calls.tooltips.outbound-customer-call.text": "Total des appels sortants des clients",
+	"page.calls.tooltips.outbound-technician-call.text": "Total des appels sortants des techniciens",
+	"page.calls.tooltips.no-answer-total-call.text": "Total des appels sans réponse (non-réponses des clients + non-réponses des techniciens)",
+	"page.calls.tooltips.no-answer-percent-call.text": "Pourcentage des appels sans réponse des clients ([nombre de non-réponses des clients x 100] / nombre total d'appels clients)",
+	"page.calls.tooltips.no-answer-customer-call.text": "Nombre total d'appels sans réponse des clients",
+	"page.calls.tooltips.no-answer-technician-call.text": "Nombre total d'appels sans réponse des techniciens",
+
+
+	"page.calls.nav-tab-log.text": "Journal d'appels",
+	"page.calls.nav-tab-not-called.text": "Pas rappelé",
+	"page.calls.nav-tab-statistics.text": "Statistiques",
+
+
+	"page.calls.table.search.text": "Rechercher des appels téléphoniques",
+	"page.calls.table.header.direction.text": " ",
+	"page.calls.table.header.notes.text": "Notes",
+	"page.calls.table.header.phone.text": "Téléphone",
+	"page.calls.table.header.time.text": "Heure",
+	"page.calls.table.header.called.text": "Appelé",
+	"page.calls.table.header.routed.text": "Routé vers",
+	"page.calls.table.header.duration.text": "Durée",
+	"page.calls.table.header.reason.text": "Raison",
+	"page.calls.table.header.outcome.text": "Résultat",
+	"page.calls.table.header.sales-lead.text": "Opportunité commerciale",
+	"page.calls.table.header.status.text": "Statut"
+}

@@ -1,0 +1,23 @@
+version: '3'
+
+networks:
+  nozama-net:
+    external: true
+
+services:
+  nozama-frontend:
+    user: node
+    restart: always
+    hostname: nozama-frontend
+    container_name: nozama-frontend
+    build:
+      context: .
+    volumes:
+      - ./:/home/node:cached
+    # extra_hosts:
+    networks:
+      - nozama-net
+    ports:
+      - 3000:3000
+    expose:
+      - 3000

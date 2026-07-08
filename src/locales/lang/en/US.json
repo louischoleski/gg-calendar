@@ -1,0 +1,264 @@
+{
+	"meta.title.text": "Tigado - Unlock enterprise-level features for your service business",
+	"meta.description.text": "Tigado, Unlock enterprise-level features for your service business at a small business price and manage it from anywhere!",
+	"page.home.brand.text": "tigado",
+
+
+	"success.CODE_SENT.text": "Please check your inbox, we have just sent a reset code link to the email address associated with your account.",
+
+	"error.EMAIL-TAKEN.text": "Email already taken",
+	"error.ACCOUNT_NOT_CREATED.text": "Email already taken",
+	"error.ACCOUNT_BLOCKED.text": "Ip temporarily blocked",
+	"error.NOT-PERMITTED.text": "User registration disable",
+	"error.SERVER_ERROR.text": "Sorry we are not able to process your request Please try again later",
+	"error.AUTH_FAILED.text": "Your email and password combination does not match an existing account",
+	"error.ACCOUNT_NOT_CREATED.text": "Sorry we are not able to process your request Please try again later",
+
+
+	"meta.activate.title.text": "Tigado - Activate",
+	"page.activate.header.text": "Activate your account",
+	"page.activate.has-account.text": "Already have an account?",
+	"page.activate.form.link.signin.text": "Sign in here",
+	"page.activate.label.code.text": "Enter 6 digit code",
+	"page.activate.form.link.resend.text": "Resend it",
+	"page.activate.no-account.text": "Confirm your email address to get started on Tigado. A Code has been sent to {email}",
+	"page.activate.no-code.text": "Didn't get the code?",
+	"page.activate.form.btn.activate.text": "Activate account",
+	"page.activate.form.btn.signin-google.text": "Sign in with Google",
+	"page.activate.form.link.signup.text": "Sign up here",
+
+
+	"meta.signin.title.text": "Tigado - Sign In",
+	"page.signin.header.text": "Sign in",
+	"page.signin.paragraph.text": "Access your account",
+	"page.signin.label.or.text": "OR",
+	"page.signin.label.email.text": "Your email",
+	"page.signin.form.email.text": "email@address.com",
+	"page.signin.label.password.text": "Password",
+	"page.signin.form.password.text": "8+ characters required",
+	"page.signin.form.remember.text": "Remember me",
+	"page.signin.form.link.forgot.text": "Forgot Password?",
+	"page.signin.no-account.text": "Don't have an account yet?",
+	"page.signin.form.btn.signin.text": "Sign In",
+	"page.signin.form.btn.signin-google.text": "Sign in with Google",
+	"page.signin.form.link.signup.text": "Sign up here",
+
+	"meta.signup.title.text": "Tigado - Sign Up",
+	"page.signup.header.text": "Create your account",
+	"page.signup.label.password.text": "Password",
+	"page.signup.label.password-confirm.text": "Confirm password",
+	"page.signup.label.email.text": "Your email",
+	"page.signup.form.full-name.text": "Full name",
+	"page.signup.form.first-name.text": "First name",
+	"page.signup.form.last-name.text": "Last name",
+	"page.signup.label.or.text": "OR",
+	"page.signup.form.email.text": "Email",
+	"page.signup.form.password.text": "Password",
+	"page.signup.form.btn.signup-google.text": "Sign up with Google",
+	"page.signup.form.repeat-password.text": "Repeat password",
+	"page.signup.has-account.text": "Already have an account?",
+	"page.signup.form.btn.signup.text": "Sign Up",
+	"page.signup.form.link.signin.text": "Sign in here",
+	"page.signup.link.terms.text": "Terms",
+	"page.signup.link.privacy.text": "Privacy Policy",
+	"page.signup.form.terms-privacy.text": "By clicking \"Sign Up\", you agree to the {terms} and acknowledge the {privacy}",
+
+	"meta.not-found.title.text": "Tigado - Not found",
+	"page.not-found.header.text": "404",
+	"page.not-found.description.text": "Sorry, the page you're looking for cannot be found",
+	"page.not-found.btn.text": "Go back to the app",
+
+	"meta.forgot_password.title.text": "Tigado - Recover",
+	"page.forgot_password.header.text": "Forgot password?",
+	"page.forgot_password.label.email.text": "Your email",
+	"page.forgot_password.paragraph.text": "Enter the email address you used when you joined and we'll send you instructions to reset your password.",
+	"page.forgot_password.form.email.text": "Enter your email address",
+	"page.forgot_password.form.btn.recover.text": "Send email",
+	"page.forgot_password.has-account.text": "Back to Sign in",
+
+	"page.service.header.text": "Build digital products with:",
+	"page.feature.one.header.text": "All-in-one tool",
+	"page.feature.one.description.text": "Build, run, and scale your apps - end to end",
+	"page.feature.two.header.text": "Easily add & manage your services",
+	"page.feature.two.description.text": "It brings together your tasks, projects, timelines, files and more",
+
+	"form.validation.empty.error.text": "Can't be blank",
+	"form.validation.first-name.error.text": "Please enter a valid first name",
+	"form.validation.last-name.error.text": "Please enter a valid last name",
+	"form.validation.email.error.text": "Please enter a valid email",
+	"form.validation.password.error.text": "Please enter a valid 8 character long password",
+	"form.validation.password-confirm.error.text": "Password don't match",
+	"form.validation.password-same.error.text": "New passwords can't be the same as previous ones",
+
+
+	"nav.account.sign-out.text": "Sign out",
+	"nav.account.settings.text": "Settings",
+	"nav.account.access-logs.text": "Access logs",
+	"nav.account.organizations.text": "Organizations",
+
+
+	"nav.dashboard.text": "Dashoard",
+
+	"nav.hr.text": "Administration",
+	"nav.hr.system.text": "System",
+	"nav.hr.system.access.text": "Access",
+	"nav.hr.system.templates.text": "Templates",
+	"nav.hr.system.payments.text": "Payments",
+	"nav.hr.system.configuration.text": "Configuration",
+
+	"nav.hr.system.reward.text": "Reward Programs",
+	"nav.hr.system.crew.text": "Crew Management",
+	"nav.hr.system.company.text": "Company Information",
+	"nav.hr.system.meetings.text": "Meetings",
+	"nav.hr.system.contracts.text": "Contracts",
+	"nav.hr.system.goals.text": "Goals Management",
+	"nav.hr.system.system.text": "System Recommendations",
+
+
+	"nav.hr.employee.text": "HR",
+	"nav.hr.employee.problem.text": "Problems",
+	"nav.hr.employee.hiring.text": "Hiring",
+	"nav.hr.employee.vactions.text": "Vacations",
+	"nav.hr.employee.management.text": "Workforce",
+
+
+	"nav.hr.legal.text": "Legal",
+	"nav.hr.legal.parking.text": "Parking Tickets",
+
+
+	"nav.crm.text": "CRM",
+	"nav.crm.compagnies.text": "Companies",
+	"nav.crm.customers.text": "Customers",
+	"nav.crm.access.text": "Access",
+	"nav.crm.jobs.text": "Jobs",
+
+
+	"nav.operation.text": "Operations",
+
+
+	"nav.inventory.text": "Inventory",
+	"nav.inventory.fleet.text": "Fleet",
+	"nav.inventory.vendors.text": "Vendors",
+	"nav.inventory.settings.text": "Inventory Settings",
+	"nav.inventory.order.text": "Orders",
+	"nav.inventory.product.text": "Products",
+	"nav.inventory.tool.text": "Tools",
+	"nav.inventory.catalog.text": "Services",
+
+
+	"nav.dispatch.text": "Dispatch",
+
+
+	"nav.calendar.text": "Calendar",
+
+
+	"nav.accounting.text": "Accounting",
+	"nav.accounting.expenses.text": "Expenses",
+	"nav.accounting.invoices.text": "Invoices",
+	"nav.accounting.quotes.text": "Estimates",
+	"nav.accounting.loans.text": "Loans",
+
+
+	"nav.communication.text": "Communication",
+	"nav.communication.phone.text": "Phone System",
+	"nav.communication.chat.text": "Internal Chat System",
+	"nav.communication.forum.text": "Forum",
+	"nav.communication.task.text": "Task Board/Chat",
+
+
+	"nav.it.text": "IT",
+	"nav.it.company.text": "Company Preferences",
+	"nav.it.tag.text": "Tags Management",
+	"nav.it.api.text": "API's",
+	"nav.it.language.text": "Language Settings",
+	"nav.it.invoice.text": "Invoice Management Settings",
+	"nav.it.recommendations.text": "System Recommendations",
+
+
+	"nav.rd.text": "R&D",
+	"nav.rd.project.text": "Projects",
+	"nav.rd.database.text": "Database",
+	"nav.rd.database.employee.text": "Employee",
+	"nav.rd.database.references.text": "References",
+	"nav.rd.database.vip.text": "Important People",
+	"nav.rd.database.association.text": "Association",
+	"nav.rd.database.competitors.text": "Competitors",
+	"nav.rd.database.postal-code.text": "Postal Code",
+	"nav.rd.database.machine.text": "Machine Management",
+	"nav.rd.database.job-satus.text": "Job Status",
+
+
+	"nav.rd.analytics.text": "Analytics",
+	"nav.rd.analytics.project.text": "Project Items",
+
+
+	"nav.rd.feedback.text": "Customer Feedback Portal",
+	"nav.rd.reports.text": "Reports",
+
+
+	"nav.marketing.text": "Marketing",
+	"nav.marketing.dashboard.text": "Dashboard",
+	"nav.marketing.seo.text": "SEO",
+	"nav.marketing.smo.text": "SMO",
+	"nav.marketing.sem.text": "SEM",
+	"nav.marketing.traditional.text": "Traditional Marketing",
+	"nav.marketing.reviews.text": "Reviews",
+	"nav.marketing.email.text": "Customer Email Broadcast",
+	"nav.marketing.goals.text": "Goals",
+
+
+	"nav.sub-master.text": "Sub Master Account",
+
+
+	"nav.settings.text": "Settings",
+
+
+	"nav.logout.text": "Logout",
+
+
+	"page.calls.header.text": "Manage Calls",
+	"page.calls.metrics.total-call.text": "Total # of calls",
+	"page.calls.metrics.total-unique-call.text": "Total unique calls",
+	"page.calls.metrics.total-customer-call.text": "Total customer calls",
+	"page.calls.metrics.inbound-customer-call.text": "Customer inbound calls",
+	"page.calls.metrics.inbound-technician-call.text": "Technician inbound calls",
+	"page.calls.metrics.outbound-customer-call.text": "Customer outbound calls",
+	"page.calls.metrics.outbound-technician-call.text": "Technician outbound calls",
+	"page.calls.metrics.no-answer-total-call.text": "Total no answer",
+	"page.calls.metrics.no-answer-percent-call.text": "Percent no answer",
+	"page.calls.metrics.no-answer-customer-call.text": "Customer no answer",
+	"page.calls.metrics.no-answer-technician-call.text": "Technician no answer",
+
+
+	"page.calls.tooltips.total-call.text": "(customer inbound call + customer outbound call) + (technician inbound call + technician outbound call) + total no answer",
+	"page.calls.tooltips.total-unique-call.text": "Unique inbound, outbound and no answer call",
+	"page.calls.tooltips.total-customer-call.text": "(customer inbound call + customer outbound call)",
+	"page.calls.tooltips.inbound-customer-call.text": "Total customers inbound calls",
+	"page.calls.tooltips.inbound-technician-call.text": "Total technicians inbound calls",
+	"page.calls.tooltips.outbound-customer-call.text": "Total customers outbound calls",
+	"page.calls.tooltips.outbound-technician-call.text": "Total technicians outbound calls",
+	"page.calls.tooltips.no-answer-total-call.text": "Total no answer calls (Customer no answer + Tehcnicians no answer calls)",
+	"page.calls.tooltips.no-answer-percent-call.text": "Percent customer no answer call ([ Customer no answer x 100 ] / total customer calls)",
+	"page.calls.tooltips.no-answer-customer-call.text": "Total amount of customer no answer calls",
+	"page.calls.tooltips.no-answer-technician-call.text": "Total amount of technicians no answer calls",
+
+
+	"page.calls.nav-tab-log.text": "Call log",
+	"page.calls.nav-tab-not-called.text": "Not Called Back",
+	"page.calls.nav-tab-statistics.text": "Statistics",
+
+
+	"page.calls.table.search.text": "Search phone calls",
+	"page.calls.table.header.direction.text": " ",
+	"page.calls.table.header.notes.text": "Notes",
+	"page.calls.table.header.phone.text": "Phone",
+	"page.calls.table.header.time.text": "Time",
+	"page.calls.table.header.called.text": "Called",
+	"page.calls.table.header.routed.text": "Routed to",
+	"page.calls.table.header.duration.text": "Duration",
+	"page.calls.table.header.reason.text": "Reason",
+	"page.calls.table.header.outcome.text": "Outcome",
+	"page.calls.table.header.sales-lead.text": "Sales lead",
+	"page.calls.table.header.status.text": "Status"
+
+}
