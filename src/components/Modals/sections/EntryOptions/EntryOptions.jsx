@@ -35,6 +35,8 @@ const EntryOptions = ({
 		entries.find(({ id }) => id === modalData?.id)
 	), [ entries, modalData ]);
 
+	const [ confirmDelete, setConfirmDelete ] = React.useState(false);
+
 	// Snapshot position once; modalData is cleared on close.
 	const [ position ] = React.useState(() => (
 		setPopupPosition(modalData?.x, modalData?.y)
@@ -58,6 +60,10 @@ const EntryOptions = ({
 	};
 
 	const onDeleteClick = () => {
+		setConfirmDelete(true);
+	};
+
+	const onConfirmDelete = () => {
 		dispatch(deleteEntry(entry.id));
 		onClose();
 	};
@@ -174,6 +180,27 @@ const EntryOptions = ({
 						</div>
 					</div>
 				</div>
+				{confirmDelete ? (
+					<div className="delete-popup">
+						<div className="delete-popup__text">
+							Are you sure you want to delete this entry?
+						</div>
+						<div className="delete-popup__btns">
+							<button
+								className="delete-popup__cancel"
+								onClick={() => setConfirmDelete(false)}
+							>
+								Cancel
+							</button>
+							<button
+								className="delete-popup__confirm"
+								onClick={onConfirmDelete}
+							>
+								Delete
+							</button>
+						</div>
+					</div>
+				) : null}
 			</aside>
 			<aside
 				className="entry__options--overlay"
