@@ -103,16 +103,15 @@ const appReducer = (state = appState, action) => {
 	switch (action.type) {
 		case actionTypes.APP_LOADING:
 			return { ...state, ...action.app };
+		// No modal guard: the theme radios live inside the Settings
+		// modal (shortcuts already check the modal state themselves).
 		case actionTypes.APP_THEME_UPDATED:
-			if (state.modal !== MODAL_SECTIONS.CLOSED) return state;
-
 			if (state.theme === action.theme) return state;
 
 			return { ...state, theme: action.theme };
 		case actionTypes.APP_THEME_TOGGLED:
-			if (state.modal !== MODAL_SECTIONS.CLOSED) return state
 			return {
-				...state, 
+				...state,
 				theme: toggleStringArray(state.theme, THEME_KEYS)
 			};
 		case actionTypes.APP_VIEW_UPDATED:
