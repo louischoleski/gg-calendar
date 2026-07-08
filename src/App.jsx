@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { setDate } from '@store/actions/app';
+import { setFaviconDate } from '@utils/favicon';
 import { withShortcutsListener } from '@utils/hocs';
 import { THEMES, THEME_CLASSNAMES } from '@constants/themes';
 import { selectTheme, selectAnimation, selectDate } from '@store/selectors/app';
@@ -36,6 +37,9 @@ const App = () => {
 			todayDate.getMonth(),
 			todayDate.getDate(),
 		));
+
+		// Render today's date into the favicon.
+		setFaviconDate(todayDate.getDate());
 	}, []);
 
 	const themeClassName = React.useMemo(() => ([
