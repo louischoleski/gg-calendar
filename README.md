@@ -12,6 +12,19 @@ imitation.
 Not affiliated with Google. Built for learning, kept honest by testing against
 the reference at every step.
 
+![Week view](screenshots/week.png)
+
+<table>
+  <tr>
+    <td><img src="screenshots/month.png" alt="Month view" /></td>
+    <td><img src="screenshots/day.png" alt="Day view" /></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/week-dark.png" alt="Week view, dark theme" /></td>
+    <td><img src="screenshots/event-form.png" alt="Event form" /></td>
+  </tr>
+</table>
+
 ## Features
 
 - **Five views** — Day, Week, Month, Year, and Agenda.
