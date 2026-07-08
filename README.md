@@ -2,6 +2,8 @@
 
 A calendar single-page application built with React, Vite, and Redux Toolkit.
 
+**[Live demo →](https://choleski94.github.io/gg-calendar/)**
+
 It began as an exercise: take a well-made vanilla-JavaScript Google Calendar
 clone and rebuild it in React — not to copy the output, but to earn the
 understanding. Every interaction was studied in the original, then
