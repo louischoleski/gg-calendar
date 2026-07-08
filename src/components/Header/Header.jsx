@@ -24,6 +24,11 @@ const Header = ({
 
 	const { sidebar: isSidebarCollapsed } = useSelector(selectCollapsed);
 
+	// Browser tab title reflects the active month.
+	React.useEffect(() => {
+		document.title = `${CALENDAR_LABELS.MONTH.LONG[month]} ${year} — Calendar`;
+	}, [ month, year ]);
+
 	const toggleSidebar = () => dispatch(toggleCollapsed.sidebar());
 
 	const onTodayClick = () => {
@@ -167,7 +172,7 @@ const Header = ({
 						</svg>
 					</div>
 					<h3 className="header-title">
-						{CALENDAR_LABELS.MONTH.LONG[month]}
+						Calendar
 					</h3>
 					<button
 						className="btn-root btn-today"
