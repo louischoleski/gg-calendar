@@ -38,8 +38,26 @@ const App = () => {
 			todayDate.getDate(),
 		));
 
-		// Render today's date into the favicon.
-		setFaviconDate(todayDate.getDate());
+	}, []);
+
+	// Keep the favicon on today's date, refreshing it at midnight.
+	React.useEffect(() => {
+		let timer;
+
+		const schedule = () => {
+			setFaviconDate(new Date().getDate());
+
+			const now = new Date();
+			const nextMidnight = new Date(
+				now.getFullYear(), now.getMonth(), now.getDate() + 1
+			);
+
+			timer = setTimeout(schedule, nextMidnight - now + 1000);
+		};
+
+		schedule();
+
+		return () => clearTimeout(timer);
 	}, []);
 
 	const themeClassName = React.useMemo(() => ([
