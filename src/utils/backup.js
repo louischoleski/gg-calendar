@@ -16,7 +16,8 @@ const isCategory = (category) => (
 	typeof category.color === 'string'
 );
 
-const normalizeEntries = (items) => items.map((entry) => ({
+// Drop render-only coordinates; positions are derived from times.
+const normalizeEntries = (items) => items.map(({ coordinates, ...entry }) => ({
 	completed: false,
 	description: '',
 	...entry,
@@ -83,11 +84,13 @@ export const parseBackup = (raw = '') => {
 		return null;
 	}
 
-	// Original vanilla project backup.
-	if (typeof data?.store === 'string' && typeof data?.ctg === 'string') {
+	// Original vanilla project backup. `store`/`ctg` may be JSON
+	// strings (raw JSON.stringify(localStorage) dump) or already
+	// parsed (array / object) depending on how the file was saved.
+	if (data?.store !== undefined && data?.ctg !== undefined) {
 		try {
-			const entries = JSON.parse(data.store);
-			const ctg = JSON.parse(data.ctg);
+			const entries = typeof data.store === 'string' ? JSON.parse(data.store) : data.store;
+			const ctg = typeof data.ctg === 'string' ? JSON.parse(data.ctg) : data.ctg;
 
 			if (!Array.isArray(entries) || !ctg || typeof ctg !== 'object') {
 				return null;
@@ -103,8 +106,18 @@ export const parseBackup = (raw = '') => {
 				return null;
 			}
 
+			// Map the vanilla top-level settings we understand.
+			const appSettings = pickAppSettings({
+				view: (data.component || '').toUpperCase(),
+				theme: (data.colorScheme || '').toUpperCase(),
+				shortcut: data.keyboardShortcutsStatus === undefined ?
+					undefined : String(data.keyboardShortcutsStatus) === 'true',
+				animation: data.animationStatus === undefined ?
+					undefined : String(data.animationStatus) === 'true',
+			});
+
 			return {
-				appSettings: {},
+				appSettings,
 				entries: normalizeEntries(entries),
 				categories: normalizeCategories(categories),
 			};
